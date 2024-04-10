@@ -1,0 +1,11 @@
+{
+  "hosting": {
+    "public": "build",
+    "site": "ooh-gpt-2",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}
