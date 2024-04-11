@@ -209,7 +209,7 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
 
   const handleTTS = async (text) => {
     try {
-      const response = await fetch('http://localhost:3010/synthesize', {
+      const response = await fetch('https://ooh-gpt-2-0-tts-openai.onrender.com/synthesize', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
