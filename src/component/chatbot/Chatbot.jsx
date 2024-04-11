@@ -15,7 +15,7 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
   const tags = ['Insight report', 'Billboards', 'Road Segments', 'Vehicle Data', 'Pedestrian', 'etc' ]
   const conversationRef = useRef(null);
   const [allowTagClick, setAllowTagClick] = useState(true);
-  const [audioList, setAudioList] = useState([]);
+  // const [audioList, setAudioList] = useState([]);
   const [typingIntervalId, setTypingIntervalId] = useState(null);
   
   const sendMessage = async () => {
@@ -77,8 +77,7 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
           } else {
             clearInterval(typingInterval);
             sendButton.classList.remove('inactive');
-
-           
+          
           }
         }, 25); 
 
@@ -195,18 +194,43 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
     scrollToBottom();
   }, [messages]);
 
+  // const handleGoogleTTS = async (text) => {
+  //   try {
+  //     const baseURL = 'http://localhost:3010';
+  //     const response = await axios.post(`${baseURL}/synthesize`, {
+  //       text,
+  //     });
+  //     const audioSrc = `data:audio/mp3;base64, ${response.data.audioContent}`;
+  //     setAudioList(prevAudioList => [...prevAudioList, audioSrc]);
+  //   } catch (error) {
+  //     console.log('error')
+  //   }
+  // };  
+
   const handleTTS = async (text) => {
     try {
-      const baseURL = 'https://ooh-gpt-2-0-tts.onrender.com';
-      const response = await axios.post(`${baseURL}/synthesize`, {
-        text,
+      const response = await fetch('http://localhost:3010/synthesize', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
       });
-      const audioSrc = `data:audio/mp3;base64, ${response.data.audioContent}`;
-      setAudioList(prevAudioList => [...prevAudioList, audioSrc]);
+  
+      if (!response.ok) {
+        throw new Error('Failed to generate speech');
+      }
+  
+      const audioBlob = await response.blob();
+      const audioUrl = URL.createObjectURL(audioBlob);
+      const audio = new Audio(audioUrl);
+      audio.play();
     } catch (error) {
-      console.log('error')
+      console.error('Error:', error.message);
     }
-  };  
+  };
+  
+  
 
   useEffect(() => {
     return () => {
@@ -214,7 +238,7 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
     };
   }, [typingIntervalId]);
 
-  let botMessageIndex = 0;
+  // let botMessageIndex = 0;
 
   return (
     <div className='chatbot'>
@@ -240,9 +264,9 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
           {messages.map((msg, index) => (
             <div key={index} className={msg.type}>
               {msg.msg_text}
-              {msg.type === 'bot' && (
+              {/* {msg.type === 'bot' && (
                 <audio autoPlay className='tts' controls src={audioList[botMessageIndex++]} type="audio/mp3" ></audio> 
-              )}
+              )} */}
             </div>
           ))}
         </div>

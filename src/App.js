@@ -5,7 +5,7 @@ import Chatbot from './component/chatbot/Chatbot';
 function App() {
   const [darkMode, setDarkMode] = useState(false)
   const [password, setPassword] = useState('')
-  const [access, setAccess] = useState(false)
+  const [access, setAccess] = useState(true)
 
   const handlePasswordChange = (e) => {
     setPassword(e.target.value);
