@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import './App.css';
 import Chatbot from './component/chatbot/Chatbot';
+import Seaplane from './component/seaplane/Seaplane';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false)
@@ -41,6 +42,7 @@ function App() {
           <button onClick={handleAccess}>Enter</button>
         </div>
       ) : (
+        // <Seaplane />
         <Chatbot darkMode={darkMode} setDarkMode={setDarkMode} />
       )}
     </div>

@@ -6,18 +6,28 @@ import './Chatbot.css';
 import logo from '../../asset/logo-dot-white@4x.png'
 import send from '../../asset/Send.png'
 import mode from '../../asset/day-and-night (1).png'
+import sound from '../../asset/sound.png'
+import darkSound from '../../asset/dark-sound.png'
 
 const db = getFirestore(app);
 
 const Chatbot = ({ darkMode, setDarkMode }) => {
+  // State variables
   const [messages, setMessages] = useState([]);
   const [userMessage, setUserMessage] = useState("");
+  const [ttsEnabled, setTTSEnabled] = useState(false);
   const tags = ['Insight report', 'Billboards', 'Road Segments', 'Vehicle Data', 'Pedestrian', 'etc' ]
   const conversationRef = useRef(null);
   const [allowTagClick, setAllowTagClick] = useState(true);
   // const [audioList, setAudioList] = useState([]);
   const [typingIntervalId, setTypingIntervalId] = useState(null);
-  
+  const [timeStamp, setTimeStamp] = useState(null)
+  const [currentAudio, setCurrentAudio] = useState(null);
+
+  // ========================================
+  // Section: Functions
+  // ========================================
+
   const sendMessage = async () => {
     if (!userMessage) {
       return;
@@ -25,6 +35,7 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
     const userMessageText = userMessage
     const sendButton = document.querySelector('.send-button')
     sendButton.classList.add('inactive')
+    setAllowTagClick(false)
     setUserMessage("");
     try {
       const userMessageData = {
@@ -40,12 +51,13 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
       });
   
       if (response.status === 200) { 
+        
         const data = response.data;
         if (data.generatedResponse) {
           handleTTS(data.generatedResponse);
         }
           const botMessageData = {
-            msg_text: "2", 
+            msg_text: data.generatedResponse, 
             type: 'bot',
             timestamp: serverTimestamp()
           };
@@ -76,6 +88,7 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
             index++;
           } else {
             clearInterval(typingInterval);
+            setAllowTagClick(true)
             sendButton.classList.remove('inactive');
           
           }
@@ -91,7 +104,6 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
   };
 
   
-
   const handleTagClick = async (e) => {
     const tags = document.querySelectorAll('.tag')
     e.target.classList.add('selected')
@@ -122,7 +134,7 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
           handleTTS(data.generatedResponse);
         }
           const botMessageData = {
-            msg_text: "2", 
+            msg_text: data.generatedResponse, 
             type: 'bot',
             timestamp: serverTimestamp()
           };
@@ -171,15 +183,8 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
     }
   };
   
-  const now = new Date();
-  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-  const day = days[now.getDay()];
-  const hours = now.getHours() % 12 || 12; 
-  const minutes = now.getMinutes();
-  const amPm = now.getHours() >= 12 ? 'PM' : 'AM';
-
   const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
+    if (allowTagClick && e.key === 'Enter') {
       sendMessage()
     }
   }
@@ -189,10 +194,6 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
       conversationRef.current.scrollTop = conversationRef.current.scrollHeight;
     }
   };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
 
   // const handleGoogleTTS = async (text) => {
   //   try {
@@ -207,8 +208,15 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
   //   }
   // };  
 
+  const toggleTTS = () => {
+    setTTSEnabled(!ttsEnabled);
+  }
+
   const handleTTS = async (text) => {
+    if (!ttsEnabled) return;
+  
     try {
+      console.log('Fetching audio synthesis...');
       const response = await fetch('https://ooh-gpt-2-0-tts-openai.onrender.com/synthesize', {
         method: 'POST',
         headers: {
@@ -223,14 +231,25 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
   
       const audioBlob = await response.blob();
       const audioUrl = URL.createObjectURL(audioBlob);
-      const audio = new Audio(audioUrl);
-      audio.play();
+      const newAudio = new Audio(audioUrl);
+      setCurrentAudio(false)
+      if (currentAudio) {
+        currentAudio.pause();
+      }
+      setCurrentAudio(newAudio);
+      newAudio.play();  
+      newAudio.addEventListener('ended', () => {
+        setCurrentAudio(null);
+      });
     } catch (error) {
       console.error('Error:', error.message);
     }
   };
   
   
+  // ========================================
+  // Section: Effects
+  // ========================================
 
   useEffect(() => {
     return () => {
@@ -238,7 +257,25 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
     };
   }, [typingIntervalId]);
 
-  // let botMessageIndex = 0;
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+
+  useEffect(() => {
+    const now = new Date();
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const day = days[now.getDay()];
+    const hours = now.getHours() % 12 || 12; 
+    const minutes = now.getMinutes();
+    const amPm = now.getHours() >= 12 ? 'PM' : 'AM';
+    const formattedTimestamp = `${day} ${hours}:${minutes < 10 ? '0' + minutes : minutes} ${amPm}`;
+    setTimeStamp(formattedTimestamp);
+  }, []);
+
+  // ========================================
+  // Section: JSX Structure
+  // ========================================
 
   return (
     <div className='chatbot'>
@@ -246,10 +283,19 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
         <div className="header">
           <img src={logo} alt="" />
         </div>
-        <div className="conversation" ref={conversationRef}>
+        <div className='fixed'>
           <div className="timestamp">
-            {day.slice(0,3)} {hours}:{minutes < 10 ? '0' + minutes : minutes} {amPm}
+            {timeStamp}
           </div>
+          <div className="toggle-tts">
+            <img src={darkMode ? darkSound : sound} alt="" />
+            <div>            
+              <input checked={ttsEnabled} onChange={toggleTTS} type="checkbox" id='tts' onClick={(e) => e.stopPropagation()}/>
+              <label htmlFor="tts" className='button'></label>
+            </div>
+          </div>
+        </div>
+        <div className="conversation" ref={conversationRef}>
           <div className='bot'>
             Hello, how can I help you?
           </div>
@@ -257,16 +303,13 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
             <p>Other people are looking for... </p>
             <div>
               {tags.map((tag, index) => (
-                <p className='tag' key={index} onClick={allowTagClick ? handleTagClick : () => {}}>{tag}</p>
+                <p className={`tag ${allowTagClick ? '' : 'inactive'}`}  key={index} onClick={allowTagClick ? handleTagClick : () => {}}>{tag}</p>
               ))}
             </div>
           </div>
           {messages.map((msg, index) => (
             <div key={index} className={msg.type}>
               {msg.msg_text}
-              {/* {msg.type === 'bot' && (
-                <audio autoPlay className='tts' controls src={audioList[botMessageIndex++]} type="audio/mp3" ></audio> 
-              )} */}
             </div>
           ))}
         </div>
