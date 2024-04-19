@@ -1,51 +1,21 @@
 import { useState } from 'react';
 import './App.css';
 import Chatbot from './component/chatbot/Chatbot';
-import Seaplane from './component/seaplane/Seaplane';
+import Seaplane from './component/chatbot/Seaplane';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false)
-  const [password, setPassword] = useState('')
-  const [access, setAccess] = useState(true)
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const handleAccess = () => {
-    if (password === 'commb123') {
-      setAccess(true);
-      document.body.style.zoom = '100%'; 
-    } else {
-      alert('Incorrect password.');
-    }
-  };
-  
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleAccess(); 
-    }
-  };
+  const [demo, setDemo] = useState(null)
 
   return (
-    <div className={`App ${darkMode ? 'dark' : ''}`}>
-       {!access ? (
-        <div className='password'>
-          <input
-            type="password"
-            placeholder="Enter passcode"
-            value={password}
-            onChange={handlePasswordChange}
-            onKeyDown={handleKeyDown}
-          />
-          <button onClick={handleAccess}>Enter</button>
+      <div className={`App ${darkMode ? 'dark' : ''}`}>
+        <div className="version">
+          <button onClick={() => setDemo('S')}>Seaplane Demo</button>
+          <button onClick={() => setDemo('o')}>Older Version (OpenAI)</button>
         </div>
-      ) : (
-        // <Seaplane />
-        <Chatbot darkMode={darkMode} setDarkMode={setDarkMode} />
-      )}
-    </div>
+        {demo === 'S' && <Seaplane />}
+        {demo === 'o' && <Chatbot darkMode={darkMode} setDarkMode={setDarkMode} />}
+      </div>
   );
 }
 

@@ -216,7 +216,6 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
     if (!ttsEnabled) return;
   
     try {
-      console.log('Fetching audio synthesis...');
       const response = await fetch('https://ooh-gpt-2-0-tts-openai.onrender.com/synthesize', {
         method: 'POST',
         headers: {
