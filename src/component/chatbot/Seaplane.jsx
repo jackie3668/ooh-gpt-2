@@ -126,7 +126,7 @@ const Seaplane = ({ darkMode, setDarkMode }) => {
   
       const requestData = {
         "chat_history": `${messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|')}`,
-        "query": userMessage
+        "query": userMessageText
       };
       
       console.log(requestData);

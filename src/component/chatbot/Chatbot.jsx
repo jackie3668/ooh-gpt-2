@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore'
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { app } from '../../firebase'
 import axios from 'axios'; 
 import './Chatbot.css';
@@ -10,7 +11,21 @@ import sound from '../../asset/sound.png'
 import darkSound from '../../asset/dark-sound.png'
 
 const db = getFirestore(app);
+// Function to start the loading animation
+const startLoadingAnimation = () => {
+  const loadingElement = document.querySelector('.loading-animation');
+  if (loadingElement) {
+    loadingElement.classList.add('loading');
+  }
+};
 
+// Function to stop the loading animation
+const stopLoadingAnimation = () => {
+  const loadingElement = document.querySelector('.loading-animation');
+  if (loadingElement) {
+    loadingElement.classList.remove('loading');
+  }
+};
 const Chatbot = ({ darkMode, setDarkMode }) => {
   // State variables
   const [messages, setMessages] = useState([]);
@@ -44,7 +59,7 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
       };
       setMessages(prevMessages => [...prevMessages, userMessageData]);
   
-      const response = await axios.post('https://celestial-tarot-api-505d7e2bd446.herokuapp.com/sendMsgToOpenAI', {
+      const response = await axios.post('https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI', {
         userMessage: userMessageText,
       }, {
         timeout: 60000, 
@@ -122,7 +137,7 @@ const Chatbot = ({ darkMode, setDarkMode }) => {
       };
       setMessages(prevMessages => [...prevMessages, userMessageData]);
   
-      const response = await axios.post('https://celestial-tarot-api-505d7e2bd446.herokuapp.com/sendMsgToOpenAI', {
+      const response = await axios.post('https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI', {
         userMessage: userMessageText,
       }, {
         timeout: 60000, 
