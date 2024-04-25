@@ -1,3 +1,4 @@
+
 import { useState, useRef, useEffect } from 'react';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { app } from '../../firebase'
@@ -11,9 +12,10 @@ import darkSound from '../../asset/dark-sound.png'
 
 const db = getFirestore(app);
 
-const Seaplane = ({ darkMode, setDarkMode }) => {
+const OpenAI_Seaplane_T = ({ darkMode, setDarkMode }) => {
   // State variables
   const [messages, setMessages] = useState([]);
+  const [pdfMessages, setpdfMessages] = useState([])
   const [userMessage, setUserMessage] = useState("");
   const [ttsEnabled, setTTSEnabled] = useState(false);
   const tags = ['Insight report', 'Billboards', 'Road Segments', 'Vehicle Data', 'Pedestrian', 'etc' ]
@@ -30,16 +32,15 @@ const Seaplane = ({ darkMode, setDarkMode }) => {
 
   const sendMessage = async () => {
     const sendButton = document.querySelector('.send-button');
-    sendButton.classList.add('inactive')
     if (sendButton.classList.contains('inactive')) {
       return;
     }
+    sendButton.classList.add('inactive')
 
     if (!userMessage) {
       return;
     }
     const userMessageText = userMessage
-    sendButton.classList.add('inactive')
     setAllowTagClick(false)
     setUserMessage("");
     try {
@@ -48,37 +49,34 @@ const Seaplane = ({ darkMode, setDarkMode }) => {
         type: 'user'
       };
       setMessages(prevMessages => [...prevMessages, userMessageData]);
-      const requestData = {
-        "chat_history": `${messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|')}`,
-        "query": userMessage
-      };
-      
-      console.log(requestData);
-      const response = await axios.post('https://ooh-gpt-2-0-tts-openai.onrender.com/llm', requestData);
+  
+      const response = await axios.post('https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI', {
+        userMessage: userMessageText,
+      }, {
+        timeout: 60000, 
+      });
   
       if (response.status === 200) { 
-        const data = response.data[0].result + '\n' + 'You can find more information in: '+ response.data[0].source_urls;
-        console.log('1',response.data[0].result, '2',response.data[0].source_urls, '3', data);
-        
-        if (data) {
-          handleTTS(data);
+        const data = response.data;
+        if (data.generatedResponse) {
+          handleTTS(data.generatedResponse);
         }
           const botMessageData = {
-            msg_text: data, 
+            msg_text: data.generatedResponse, 
             type: 'bot',
             timestamp: serverTimestamp()
           };
 
           const messageData = {
             msg_user: userMessageText,
-            msg_bot: data,
+            msg_bot: data.generatedResponse,
             timestamp: serverTimestamp()
           };
       
         await addDoc(collection(db, "messages"), messageData);
         
         setMessages(prevMessages => [...prevMessages, botMessageData]);
-        const botMessage = data; 
+        const botMessage = data.generatedResponse; 
         let index = 0;
         const typingInterval = setInterval(() => {
           if (index < botMessage.length) {
@@ -112,6 +110,7 @@ const Seaplane = ({ darkMode, setDarkMode }) => {
 
   
   const handleTagClick = async (e) => {
+    const sendButton = document.querySelector('.send-button');
     const tags = document.querySelectorAll('.tag')
     e.target.classList.add('selected')
     setAllowTagClick(false)
@@ -119,8 +118,6 @@ const Seaplane = ({ darkMode, setDarkMode }) => {
       tag.classList.add('inactive')
     })
     const userMessageText = "Tell me about " + e.target.innerText.toLowerCase() + '.';
-    const sendButton = document.querySelector('.send-button')
-    sendButton.classList.add('inactive')
     setUserMessage("");
     try {
       const userMessageData = {
@@ -129,37 +126,33 @@ const Seaplane = ({ darkMode, setDarkMode }) => {
       };
       setMessages(prevMessages => [...prevMessages, userMessageData]);
   
-      const requestData = {
-        "chat_history": `${messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|')}`,
-        "query": userMessageText
-      };
-      
-      console.log(requestData);
-      const response = await axios.post('https://ooh-gpt-2-0-tts-openai.onrender.com/llm', requestData);
+      const response = await axios.post('https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI', {
+        userMessage: userMessageText,
+      }, {
+        timeout: 60000, 
+      });
   
       if (response.status === 200) { 
-        const data = response.data[0].result + '\n' + 'You can find more information in: '+ response.data[0].source_urls;
-        console.log('1',response.data[0].result, '2',response.data[0].source_urls, '3', data);
-        
-        if (data) {
-          handleTTS(data);
+        const data = response.data;
+        if (data.generatedResponse) {
+          handleTTS(data.generatedResponse);
         }
           const botMessageData = {
-            msg_text: data, 
+            msg_text: data.generatedResponse, 
             type: 'bot',
             timestamp: serverTimestamp()
           };
 
           const messageData = {
             msg_user: userMessageText,
-            msg_bot: data,
+            msg_bot: data.generatedResponse,
             timestamp: serverTimestamp()
           };
 
         await addDoc(collection(db, "messages"), messageData);
 
        setMessages(prevMessages => [...prevMessages, botMessageData]);
-        const botMessage = data; 
+        const botMessage = data.generatedResponse; 
         let index = 0;
         const typingInterval = setInterval(() => {
           if (index < botMessage.length) {
@@ -255,6 +248,67 @@ const Seaplane = ({ darkMode, setDarkMode }) => {
       console.error('Error:', error.message);
     }
   };
+
+
+  const handlePDFSearch = async (e) => {
+    try {
+      const msg_index = parseInt(e.target.id) - 1;
+      console.log('current msg',messages);
+      const target = document.getElementById(msg_index + 1);
+      target.innerText = 'searching';
+  
+      const userMessageText = messages[msg_index].msg_text; 
+      const sendButton = document.querySelector('.send-button');
+      sendButton.classList.add('inactive');
+      setAllowTagClick(false);
+  
+      const requestData = {
+        "chat_history": `${messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|')}`,
+        "query": userMessageText
+      };
+  
+      console.log(requestData);
+      const response = await axios.post('https://ooh-gpt-2-0-tts-openai.onrender.com/llm', requestData);
+  
+      if (response.status === 200) {
+        const data = 'You can find more information in: ' + response.data[0].source_urls;
+        console.log('You can find more information in: ' + response.data[0].source_urls);
+  
+        const botMessage = data;
+        console.log('data', data);
+        let index = 0;
+        const typingInterval = setInterval(() => {
+          if (index < botMessage.length) {
+            const botMessageWithTyping = botMessage.substring(0, index + 1);
+            const updatedBotMessageData = {
+              msg_text: botMessageWithTyping,
+              type: 'bot',
+              timestamp: serverTimestamp()
+            };
+            setpdfMessages(prevMessages => {
+              const updatedMessages = {...prevMessages}; 
+              updatedMessages[msg_index+1] = updatedBotMessageData; 
+              return updatedMessages;
+            });
+            index++;
+          } else {
+            clearInterval(typingInterval);
+            sendButton.classList.remove('inactive');
+            setAllowTagClick(true);
+            console.log(pdfMessages); 
+          }
+        }, 25);
+  
+        setTypingIntervalId(typingInterval);
+        console.log(pdfMessages); 
+        console.log(pdfMessages[0].msg_text); 
+      } else {
+        console.error('Error making a request to the backend API');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
   
   
   // ========================================
@@ -307,7 +361,7 @@ const Seaplane = ({ darkMode, setDarkMode }) => {
         </div>
         <div className="conversation" ref={conversationRef}>
           <div className='bot'>
-            This is the Seaplane demo.
+            This is Seaplane & OpenAI demo
           </div>
           <div className="suggestion">
             <p>Other people are looking for... </p>
@@ -319,7 +373,14 @@ const Seaplane = ({ darkMode, setDarkMode }) => {
           </div>
           {messages.map((msg, index) => (
             <div key={index} className={msg.type}>
-              {msg.msg_text}
+              <p>{msg.msg_text}</p>
+              {/* {msg.type === 'bot' && (
+                <button id={index} className='pdf-btn' onClick={handlePDFSearch}>Search for COMMB report</button>
+              )} */}
+              {/* Display pdfMessages corresponding to the current message */}
+              {msg.type === 'bot' && pdfMessages[index] && (
+                <p>{pdfMessages[index].msg_text}</p>
+              )}
             </div>
           ))}
         </div>
@@ -338,4 +399,4 @@ const Seaplane = ({ darkMode, setDarkMode }) => {
   );
 }
 
-export default Seaplane;
+export default OpenAI_Seaplane_T

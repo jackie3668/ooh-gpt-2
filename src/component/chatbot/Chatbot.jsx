@@ -11,21 +11,7 @@ import sound from '../../asset/sound.png'
 import darkSound from '../../asset/dark-sound.png'
 
 const db = getFirestore(app);
-// Function to start the loading animation
-const startLoadingAnimation = () => {
-  const loadingElement = document.querySelector('.loading-animation');
-  if (loadingElement) {
-    loadingElement.classList.add('loading');
-  }
-};
 
-// Function to stop the loading animation
-const stopLoadingAnimation = () => {
-  const loadingElement = document.querySelector('.loading-animation');
-  if (loadingElement) {
-    loadingElement.classList.remove('loading');
-  }
-};
 const Chatbot = ({ darkMode, setDarkMode }) => {
   // State variables
   const [messages, setMessages] = useState([]);
