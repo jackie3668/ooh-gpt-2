@@ -1,9 +1,10 @@
-
+import React from 'react';
 import { useState, useRef, useEffect } from 'react';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { app } from '../../firebase'
 import axios from 'axios'; 
 import './Chatbot.css';
+import reports from '../../data/reports'
 import load from '../../asset/COMMB Loading (1).gif'
 import logo from '../../asset/logo-dot-white@4x.png'
 import send from '../../asset/Send.png'
@@ -19,6 +20,7 @@ const OpenAI_Seaplane = ({ darkMode, setDarkMode }) => {
   const [messages, setMessages] = useState([]);
   const [pdfMessages, setpdfMessages] = useState([])
   const [userMessage, setUserMessage] = useState("");
+  const [lang, setLang] = useState("EN")
   const [ttsEnabled, setTTSEnabled] = useState(false);
   const tags = ['Insight report', 'Billboards', 'Road Segments', 'Vehicle Data', 'Pedestrian', 'etc' ]
   const conversationRef = useRef(null);
@@ -52,8 +54,10 @@ const OpenAI_Seaplane = ({ darkMode, setDarkMode }) => {
         type: 'user'
       };
       setMessages(prevMessages => [...prevMessages, userMessageData]);
-  
-      const response = await axios.post('https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI', {
+      
+      const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI'; 
+
+      const response = await axios.post(url, {
         userMessage: userMessageText,
       }, {
         timeout: 60000,
@@ -117,20 +121,25 @@ const OpenAI_Seaplane = ({ darkMode, setDarkMode }) => {
   
         setTypingIntervalId(typingInterval);
       }      
+      const pdfUrl = lang === "FR" ? 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm/fr' : 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm'; 
 
-      const pdfResponse = await axios.post('https://ooh-gpt-2-0-tts-openai.onrender.com/llm', requestData);
+      const pdfResponse = await axios.post(pdfUrl, requestData);
 
       if (pdfResponse.status === 200) {
-        const data = 'You can find more information in: ' + pdfResponse.data[0].source_urls;
-        const botMessage = data;
+        const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
+        console.log(uniqueFiles);
+        const titles = uniqueFiles.map(filename => {
+          const matchingReport = reports.find(report => report.filename === filename);
+          return matchingReport ? matchingReport.title : filename;
+        });
+        console.log(titles);
+        const botMessage = 'You can find more information in: ' + titles;
         let index = 0;
         const pdfTypingInterval = setInterval(() => {
           if (index < botMessage.length) {
-            const botMessageWithTyping = botMessage.substring(0, index + 1);
             const updatedBotMessageData = {
-              msg_text: botMessageWithTyping,
-              type: 'bot',
-              timestamp: serverTimestamp()
+              msg_text: 'You can find more information in: ' ,
+              msg_titles: titles
             };
             setpdfMessages(prevMessages => {
               const updatedMessages = { ...prevMessages };
@@ -242,16 +251,20 @@ const OpenAI_Seaplane = ({ darkMode, setDarkMode }) => {
         const pdfResponse = await axios.post('https://ooh-gpt-2-0-tts-openai.onrender.com/llm', requestData);
   
         if (pdfResponse.status === 200) {
-          const data = 'You can find more information in: ' + pdfResponse.data[0].source_urls;
-          const botMessage = data;
+          const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
+          console.log(uniqueFiles);
+          const titles = uniqueFiles.map(filename => {
+            const matchingReport = reports.find(report => report.filename === filename);
+            return matchingReport ? matchingReport.title : filename;
+          });
+          console.log(titles);
+          const botMessage = 'You can find more information in: ' + titles;
           let index = 0;
           const pdfTypingInterval = setInterval(() => {
             if (index < botMessage.length) {
-              const botMessageWithTyping = botMessage.substring(0, index + 1);
               const updatedBotMessageData = {
-                msg_text: botMessageWithTyping,
-                type: 'bot',
-                timestamp: serverTimestamp()
+                msg_text: 'You can find more information in: ' ,
+                msg_titles: titles
               };
               setpdfMessages(prevMessages => {
                 const updatedMessages = { ...prevMessages };
@@ -473,6 +486,11 @@ const handlePDFSearch = (e) => {
       <div className={`chatbox ${darkMode ? 'dark' : ''}`}>
         <div className="header">
           <img src={logo} alt="" />
+          <div className="toggle-lang">
+            <span className={lang === 'EN' ? 'selected' : ''} onClick={() => {setLang('EN')}}>EN</span>
+            <span>|</span>
+            <span className={lang === 'FR' ? 'selected' : ''} onClick={() => {setLang('FR')}}>FR</span>
+          </div>
         </div>
         <div className='fixed'>
           <div className="timestamp">
@@ -505,9 +523,35 @@ const handlePDFSearch = (e) => {
                   <button id={"btn" + index} className='pdf-btn hide' onClick={handlePDFSearch}><img src={search} alt="" /><img src={load} className='pdf-load hide' alt="" /><p className='slide'>Find Insight Report</p>
                   </button>
               )}
-              {/* Display pdfMessages corresponding to the current message */}
               {msg.type === 'bot' && pdfMessages[index] && (
-                <p className={`pdf-query-${index} hide`}>{pdfMessages[index].msg_text}</p>
+                <p className={`pdf-query-${index} hide`}>
+                 After reviewing your question, I found relevant examples where COMMB has discussed these topics. For more details you can review the reports here: {' '}
+                {pdfMessages[index]?.msg_titles ? (
+                  pdfMessages[index].msg_titles.map((title, i) => {
+                    const matchingReport = reports.find(report => report.title === title);
+
+                    if (matchingReport) {
+                      return (
+                        <React.Fragment key={i}>
+                          <a className='pdf-link' href={matchingReport.url} target="_blank" rel="noopener noreferrer">
+                            {title}
+                          </a>
+                          {i !== pdfMessages[index].msg_titles.length - 1 && ', '}
+                        </React.Fragment>
+                      );
+                    } else {
+                      return (
+                        <React.Fragment key={i}>
+                          {title}
+                          {i !== pdfMessages[index].msg_titles.length - 1 && ', '}
+                        </React.Fragment>
+                      );
+                    }
+                  })
+                ) : (
+                  <span>No message available</span>
+                )}
+              </p>
               )}
             </div>
           ))}

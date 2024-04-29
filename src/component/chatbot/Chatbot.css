@@ -41,6 +41,24 @@
   width: 60%;
 }
 
+.chatbot .header .toggle-lang {
+  width: 80px;
+  height: 30px;
+  position:absolute;
+  display: flex;
+  gap: 0.4rem;
+  right: 0.5rem;
+  top: 1.25rem;
+  color: var(--white);
+  font-weight: 300;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.chatbot .header .toggle-lang span.selected {
+  font-weight: 700;
+}
+
 .chatbot .fixed {
   display: flex;
   width: 100%;
@@ -463,7 +481,21 @@
     background-size: contain;
     padding: 5%;
   }
+
+  .fixed {
+    flex-direction: column;
+    position: relative;
+    justify-content: center;
+    align-content: center;
+    gap: 0.75rem;
+  }
+
+  .fixed .toggle-tts {
+    position: relative;
+    right: 0px;
+  }
 }
+
 
 @media screen and (max-height: 649px) {
   .chatbot .header {
