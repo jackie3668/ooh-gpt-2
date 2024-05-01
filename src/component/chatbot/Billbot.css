@@ -473,7 +473,7 @@
   color: var(--white);
 }
 
-.chatbot .pdf-btn.dark-mode  {
+.chatbot .pdf-btn.dark-mode img:first-child {
   filter: invert(1);
 }
 
