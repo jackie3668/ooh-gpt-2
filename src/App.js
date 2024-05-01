@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import './App.css';
-import Billbot  from './asset/chatbot/Billbot';
+import Billbot from './component/chatbot/Billbot';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false)

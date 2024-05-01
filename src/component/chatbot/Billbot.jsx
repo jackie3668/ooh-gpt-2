@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { app } from '../../firebase'
 import axios from 'axios'; 
-import './Chatbot.css'
+import './Billbot.css'
 import reports from '../../data/reports'
 import load from '../../asset/COMMB Loading (1).gif'
 import logo from '../../asset/logo-dot-white@4x.png'
@@ -28,6 +28,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
   const [allowTagClick, setAllowTagClick] = useState(true);
   // const [audioList, setAudioList] = useState([]);
   const [typingIntervalId, setTypingIntervalId] = useState(null);
+  // eslint-disable-next-line
   const [pdfTypingInterval, setpdfTypingIntervalId] = useState(null);
   const [timeStamp, setTimeStamp] = useState(null)
   const [currentAudio, setCurrentAudio] = useState(null);
@@ -525,7 +526,7 @@ const handlePDFSearch = (e) => {
             <div key={index} className={msg.type}>
               <p>{msg.msg_text}</p>
               {msg.type === 'bot' && (
-                  <button id={"btn" + index} className='pdf-btn hide' onClick={handlePDFSearch}><img src={search} alt="" /><img src={load} className='pdf-load hide' alt="" /><p className='slide'>{lang === 'EN'?'Find Insight Report':"Rapport d'analyse"}</p>
+                  <button id={"btn" + index} className={`pdf-btn hide ${darkMode ? 'dark-mode' : ''}`}onClick={handlePDFSearch}><img src={search} alt="" /><img src={load} className='pdf-load hide' alt="" /><p className='slide'>{lang === 'EN'?'Find Insight Report':"Rapport d'analyse"}</p>
                   </button>
               )}
               {msg.type === 'bot' && pdfMessages[index] && (
@@ -538,7 +539,7 @@ const handlePDFSearch = (e) => {
                     if (matchingReport) {
                       return (
                         <React.Fragment key={i}>
-                          <a className='pdf-link' href={matchingReport.url} target="_blank" rel="noopener noreferrer">{title}
+                          <a className={`pdf-link ${darkMode ? 'dark-mode' : ''}`} href={matchingReport.url} target="_blank" rel="noopener noreferrer">{title}
                           </a>
                           {i !== pdfMessages[index].msg_titles.length - 1 && ', '}
                         </React.Fragment>
