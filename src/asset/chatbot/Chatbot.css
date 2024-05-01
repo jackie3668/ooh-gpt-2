@@ -102,7 +102,7 @@
 .fixed .toggle-tts label.button::before {
   position: absolute;
   content: '';
-  background-color: #fff;
+  background-color: var(--white);
   width: 18px;
   height: 18px;
   border-radius: 100px;
@@ -112,7 +112,8 @@
 }
 
 .fixed .toggle-tts input[type="checkbox"]:checked + .button {
-  background: linear-gradient(180deg, rgba(175,42,35,1) 28%, rgba(195,49,44,1) 100%);}
+  background: linear-gradient(180deg, rgba(175,42,35,1) 28%, rgba(195,49,44,1) 100%);
+}
 
 .fixed .toggle-tts input[type="checkbox"]:checked + .button::before {
   transform: translateX(28px);
@@ -367,16 +368,10 @@
   width: 75px;
 }
 
-.chatbot a.pdf-link{
-  color: inherit;
-  text-decoration: none;
+.chatbot a.pdf-link {
+  color: inherit; 
   color: var(--muted-red);
   font-style: italic;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
 }
 
 .user-input {
@@ -469,6 +464,10 @@ a {
 
 .chatbox.dark .toggle-tts {
   filter: brightness(1);
+}
+
+.chatbot.dark a.pdf-link {
+  color: var(--white);
 }
 
 /* RESPONSIVE */
