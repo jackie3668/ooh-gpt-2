@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './App.css';
 import Chatbot from './component/chatbot/Chatbot';
 import Seaplane from './component/chatbot/Seaplane';
-import OpenAI_Seaplane from './component/chatbot/OpenAI_Seaplane';
+import OpenAISeaplane from './component/chatbot/OpenAI_Seaplane';
 
 function App() {
   const [darkMode, setDarkMode] = useState(false)
@@ -17,7 +17,7 @@ function App() {
         </div>
         {demo === 'S' && <Seaplane />}
         {demo === 'o' && <Chatbot darkMode={darkMode} setDarkMode={setDarkMode} />}
-        {demo === 'd' && <OpenAI_Seaplane darkMode={darkMode} setDarkMode={setDarkMode} />}
+        {demo === 'd' && <OpenAISeaplane darkMode={darkMode} setDarkMode={setDarkMode} />}
 
       </div>
   );
