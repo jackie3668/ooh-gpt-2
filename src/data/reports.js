@@ -265,7 +265,17 @@ const reports = [
     url: 'https://assets.ctfassets.net/1l6si2vnlb2k/1wc1H8cp3TNfqM0xgD93e5/e8e40fa397a69430fd8946ceb6de7902/Insights_Report_5_-_FR_-_final_edit.pdf'
   },
   {
+    filename: 'Insights_Report_5_-_FR_-_final_edit.pdf',
+    title: 'Rapport d’analyse - édition n° 5',
+    url: 'https://assets.ctfassets.net/1l6si2vnlb2k/1wc1H8cp3TNfqM0xgD93e5/e8e40fa397a69430fd8946ceb6de7902/Insights_Report_5_-_FR_-_final_edit.pdf'
+  },
+  {
     filename: 'INSIGHTS_REPORT_6-FR_final.pdf',
+    title: 'Rapport d’analyse - édition n° 6',
+    url: 'https://assets.ctfassets.net/1l6si2vnlb2k/7nSz3C2gFMCVOuflgym1tt/d74619a720be815770ed6a48a6d469aa/INSIGHTS_REPORT_6_-_FR_final.pdf'
+  },
+  {
+    filename: 'INSIGHTS_REPORT_6_-_FR_final.pdf',
     title: 'Rapport d’analyse - édition n° 6',
     url: 'https://assets.ctfassets.net/1l6si2vnlb2k/7nSz3C2gFMCVOuflgym1tt/d74619a720be815770ed6a48a6d469aa/INSIGHTS_REPORT_6_-_FR_final.pdf'
   },
@@ -280,12 +290,22 @@ const reports = [
     url: 'https://downloads.ctfassets.net/1l6si2vnlb2k/5IoKeyZhhezOYtKI99i9pk/cdf9a5a2924270f7075a69ff565d623f/INSIGHTS_REPORT_-_Q1_Janvier_2023_-_FR.pdf'
   },
   {
+    filename: 'INSIGHTS_REPORT_-_Q1_Janvier_2023_-_FR.pdf',
+    title: 'Rapport d’analyse - édition n° 8',
+    url: 'https://downloads.ctfassets.net/1l6si2vnlb2k/5IoKeyZhhezOYtKI99i9pk/cdf9a5a2924270f7075a69ff565d623f/INSIGHTS_REPORT_-_Q1_Janvier_2023_-_FR.pdf'
+  },
+  {
     filename: 'INSIGHTS_REPORT_-_Q2_May_2023_-_FR.pdf',
     title: 'Rapport d’analyse - édition n° 9',
     url: 'https://assets.ctfassets.net/1l6si2vnlb2k/4SzM7ZPVnqAirf6L6wVoZv/65f5d75d68ee479ffd1a5cc2acf889c4/INSIGHTS_REPORT_-_Q2_May_2023_-_FR.pdf'
   },
   {
     filename: 'INSIGHTS_REPORT-Q3_2023-FR.pdf',
+    title: 'Rapport d’analyse - édition n° 10',
+    url: 'https://assets.ctfassets.net/1l6si2vnlb2k/7rBGcuuYKsVosBgp4b2zsc/63fc64fc548d717c66e9830455b89bda/INSIGHTS_REPORT_-_Q3_2023_-_FR.pdf'
+  },
+  {
+    filename: 'INSIGHTS_REPORT_-_Q3_2023_-_FR.pdf',
     title: 'Rapport d’analyse - édition n° 10',
     url: 'https://assets.ctfassets.net/1l6si2vnlb2k/7rBGcuuYKsVosBgp4b2zsc/63fc64fc548d717c66e9830455b89bda/INSIGHTS_REPORT_-_Q3_2023_-_FR.pdf'
   },
@@ -345,7 +365,17 @@ const reports = [
     url: 'https://downloads.ctfassets.net/1l6si2vnlb2k/2ZphBuRr1pyIO4bFevtfBl/b8c80accf3c9f9146c98dc1f00cde47c/February_Q_A_-_FR_final.pdf'
   },
   {
+    filename: 'c/February_Q_A_-_FR_final.pdf',
+    title: "Creative's Perspective of OOH",
+    url: 'https://downloads.ctfassets.net/1l6si2vnlb2k/2ZphBuRr1pyIO4bFevtfBl/b8c80accf3c9f9146c98dc1f00cde47c/February_Q_A_-_FR_final.pdf'
+  },
+  {
     filename: 'Affichage_inte__rieur_Q_A-avril_2022-FR.pdf',
+    title: "L’affichage intérieur",
+    url: 'https://assets.ctfassets.net/1l6si2vnlb2k/2m50uZHqibPlGhvmCyImXB/06981c57f62e5f57632f9ca8be14b673/Affichage_inte__rieur_Q_A_-_avril_2022_-_FR.pdf'
+  },
+  {
+    filename: 'Affichage_inte__rieur_Q_A_-_avril_2022_-_FR.pdf',
     title: "L’affichage intérieur",
     url: 'https://assets.ctfassets.net/1l6si2vnlb2k/2m50uZHqibPlGhvmCyImXB/06981c57f62e5f57632f9ca8be14b673/Affichage_inte__rieur_Q_A_-_avril_2022_-_FR.pdf'
   },
@@ -355,27 +385,27 @@ const reports = [
     url: 'https://assets.ctfassets.net/1l6si2vnlb2k/2k6o9Hrvg4HT5zVWps0XKc/a4468fd0bb507ae3bb08e9b5e8f33eab/Connectivity_Q_A_-_FR.pdf'
   },
   {
-    filename: 'September_Q_A-Holiday_edition-FR.pdf',
+    filename: 'September_Q_A_-_Holiday_edition_-_FR.pdf',
     title: "L'affichage des fêtes",
     url: 'https://assets.ctfassets.net/1l6si2vnlb2k/2e44Ss6cEdkzA3undLwujd/541e18fb9b038160831f672252f1dac3/September_Q_A_-_Holiday_edition_-_FR.pdf'
   },
   {
-    filename: 'Travel_Q_A-November_2022-FR.pdf',
+    filename: 'Travel_Q_A_-_November_2022_-_FR.pdf',
     title: "L'affichage de voyage",
     url: 'https://assets.ctfassets.net/1l6si2vnlb2k/ISlimJcM38GfTdpuwRL15/dc54f7ba7f9c421e89c4729a40c76753/Travel_Q_A_-_November_2022_-_FR.pdf'
   },
   {
-    filename: 'February_Q_A-On_the_Move-FR.pdf',
+    filename: 'February_Q_A_-_On_the_Move_-_FR.pdf',
     title: "L'affichage en mouvement",
     url: 'https://assets.ctfassets.net/1l6si2vnlb2k/4GupDhY1461eoFZh3hqi3Z/3a0383f0870d8330e9c5987265752db0/February_Q_A_-_On_the_Move_-_FR.pdf'
   },
   {
-    filename: 'Dynamic_Creative_Optimization_Q_A-FR.pdf',
+    filename: 'Dynamic_Creative_Optimization_Q_A_-_FR.pdf',
     title: 'Optimisation Dynamique de la creation',
     url: 'https://assets.ctfassets.net/1l6si2vnlb2k/6RAi6SdNnJnTDWReoHQhCk/b9b858d0c58fd3e9ea01f353427cc3a9/Dynamic_Creative_Optimization_Q_A_-_FR.pdf'
   },
   {
-    filename: 'Q_A-OOH_Specialists-_FR.pdf',
+    filename: 'Q_A_-_OOH_Specialists_-_FR.pdf',
     title: "Des experts des l'affichage",
     url: 'https://assets.ctfassets.net/1l6si2vnlb2k/2L4BPLtvQtwvXhPvxbXdJn/15c5ab02025e67ceb52339ca9600e3cb/Q_A_-_OOH_Specialists_-_FR.pdf'
   },
