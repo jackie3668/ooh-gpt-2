@@ -47,6 +47,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
     if (!userMessage) {
       return;
     }
+
     const userMessageText = userMessage
     setAllowTagClick(false)
     setUserMessage("");
@@ -60,17 +61,17 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI'; 
 
       const response = await axios.post(url, {
-        userMessage: userMessageText,
+        userMessage: 'current user message: ' + userMessageText + ' previous chat history: ' + messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|') ,
       }, {
         timeout: 60000,
       });
+
       const msg_index = messages.length
       const requestData = {
         "chat_history": `${messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|')}`,
         "query": userMessageText
       };
   
-    
       if (response.status === 200) {
         const data = response.data;
         if (data.generatedResponse) {
@@ -129,12 +130,12 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
       if (pdfResponse.status === 200) {
         const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
-        console.log(uniqueFiles);
+        console.log('seaplane response: ' , pdfResponse.data[0].result);
         const titles = uniqueFiles.map(filename => {
           const matchingReport = reports.find(report => report.filename === filename);
           return matchingReport ? matchingReport.title : filename;
         });
-        console.log(titles);
+
         const botMessage = 'You can find more information in: ' + titles;
         let index = 0;
         const pdfTypingInterval = setInterval(() => {
@@ -185,10 +186,11 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI'; 
 
       const response = await axios.post(url, {
-        userMessage: userMessageText,
+        userMessage: 'current user message: ' + userMessageText + ' previous chat history: ' + messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|') ,
       }, {
         timeout: 60000,
       });
+
       const msg_index = messages.length
       if (response.status === 200) {
         const data = response.data;
@@ -256,14 +258,15 @@ const Billbot = ({ darkMode, setDarkMode }) => {
         const pdfUrl = lang === "FR" ? 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm/fr' : 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm'; 
 
         const pdfResponse = await axios.post(pdfUrl, requestData);
+      
         if (pdfResponse.status === 200) {
           const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
-          console.log(uniqueFiles);
+          console.log('seaplane response: ' , pdfResponse.data[0].result);
           const titles = uniqueFiles.map(filename => {
             const matchingReport = reports.find(report => report.filename === filename);
             return matchingReport ? matchingReport.title : filename;
           });
-          console.log(titles);
+
           const botMessage = 'You can find more information in: ' + titles;
           let index = 0;
           const pdfTypingInterval = setInterval(() => {
