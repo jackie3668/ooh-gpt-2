@@ -68,10 +68,6 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       });
 
       const msg_index = messages.length
-      const requestData = {
-        "chat_history": `${messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|')}`,
-        "query": userMessageText
-      };
   
       if (response.status === 200) {
         const data = response.data;
@@ -126,6 +122,10 @@ const Billbot = ({ darkMode, setDarkMode }) => {
         setTypingIntervalId(typingInterval);
       }      
       const pdfUrl = lang === "FR" ? 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm/fr' : 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm'; 
+      const requestData = {
+        "chat_history": `${messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|')}`,
+        "query": userMessageText + ' //chatbot response: ' + response.data.generatedResponse + '//'
+      };
 
       const pdfResponse = await axios.post(pdfUrl, requestData);
 
@@ -253,7 +253,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
         // Second API call
         const requestData = {
           "chat_history": `${messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|')}`,
-          "query": userMessageText
+          "query": userMessageText + ' //chatbot response: ' + response.data.generatedResponse + '//'
         };
 
         const pdfUrl = lang === "FR" ? 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm/fr' : 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm'; 
