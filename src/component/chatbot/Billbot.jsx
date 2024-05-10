@@ -131,6 +131,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
       if (pdfResponse.status === 200) {
         const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
+        console.log('SEAPLANE RESPONSE: ', pdfResponse.data[0].result)
         setpdfMessagesText(prevMessages => [...prevMessages, pdfResponse.data[0].result]);
         const titles = uniqueFiles.map(filename => {
           const matchingReport = reports.find(report => report.filename === filename);
@@ -262,6 +263,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       
         if (pdfResponse.status === 200) {
           const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
+          console.log('SEAPLANE RESPONSE: ', pdfResponse.data[0].result)
           setpdfMessagesText(prevMessages => [...prevMessages, pdfResponse.data[0].result]);
           const titles = uniqueFiles.map(filename => {
             const matchingReport = reports.find(report => report.filename === filename);
