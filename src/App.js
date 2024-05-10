@@ -9,7 +9,7 @@ function App() {
   return (
       <div className={`App ${darkMode ? 'dark' : ''}`}>
         <div className="version">
-          <button onClick={() => setDemo('d')}>Read More Button</button>
+          <button onClick={() => setDemo('d')}>Fine-tuned Model</button>
         </div>
         {demo === 'd' && <Billbot darkMode={darkMode} setDarkMode={setDarkMode} />}
       </div>

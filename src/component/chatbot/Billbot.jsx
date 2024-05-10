@@ -19,6 +19,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
   // State variables
   const [messages, setMessages] = useState([]);
   const [pdfMessages, setpdfMessages] = useState([])
+  const [pdfMessagesText, setpdfMessagesText] = useState([])
   const [userMessage, setUserMessage] = useState("");
   const [lang, setLang] = useState("EN")
   const [ttsEnabled, setTTSEnabled] = useState(false);
@@ -130,7 +131,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
       if (pdfResponse.status === 200) {
         const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
-        console.log('seaplane response: ' , pdfResponse.data[0].result);
+        setpdfMessagesText(prevMessages => [...prevMessages, pdfResponse.data[0].result]);
         const titles = uniqueFiles.map(filename => {
           const matchingReport = reports.find(report => report.filename === filename);
           return matchingReport ? matchingReport.title : filename;
@@ -175,7 +176,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
     tags.forEach(tag => {
       tag.classList.add('inactive')
     })
-    const userMessageText = "Tell me about " + e.target.innerText.toLowerCase() + '.';
+    const userMessageText = (lang === "FR" ? "Parle moi de": "Tell me about ") + e.target.innerText.toLowerCase() + '.';
     setUserMessage("");
     try {
       const userMessageData = {
@@ -261,7 +262,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       
         if (pdfResponse.status === 200) {
           const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
-          console.log('seaplane response: ' , pdfResponse.data[0].result);
+          setpdfMessagesText(prevMessages => [...prevMessages, pdfResponse.data[0].result]);
           const titles = uniqueFiles.map(filename => {
             const matchingReport = reports.find(report => report.filename === filename);
             return matchingReport ? matchingReport.title : filename;
@@ -434,28 +435,48 @@ const Billbot = ({ darkMode, setDarkMode }) => {
   };
   
 
-const handlePDFSearch = (e) => {
-  const btn = e.target.closest('button');
-  btn.querySelector('p').classList.remove('slide');
-  const img = btn.querySelector('img');
-  img.style.opacity = 1;
-  const msg_id = parseInt(btn.id.replace('btn', ''), 10);
-  btn.querySelector('.pdf-load').classList.remove('hide')
-  removeHideClass(msg_id);
-  
-  const intervalId = setInterval(() => {
+  const handlePDFSearch = (e) => {
+    const btn = e.target.closest('button');
+    btn.querySelector('p').classList.remove('slide');
+    const img = btn.querySelector('img');
+    img.style.opacity = 1;
+    const msg_id = parseInt(btn.id.replace('btn', ''), 10);
+    btn.querySelector('.pdf-load').classList.remove('hide');
     removeHideClass(msg_id);
-
-    const target = document.querySelector(`.pdf-query-${msg_id}`);
-    if (target) {
-      clearInterval(intervalId); 
-    }
-  }, 1000);
-
-  setTimeout(() => {
-    clearInterval(intervalId); 
-  }, 60000);
-};
+    
+    let targetFound = false; // Flag to track if target is found
+  
+    const intervalId = setInterval(() => {
+      removeHideClass(msg_id);
+  
+      const target = document.querySelector(`.pdf-query-${msg_id}`);
+      if (target) {
+        clearInterval(intervalId);
+        targetFound = true; // Set flag to true if target is found
+      }
+    }, 1000);
+  
+    setTimeout(() => {
+      clearInterval(intervalId);
+      if (!targetFound) { // If target is not found after 60 seconds, create it
+        createTargetElement(msg_id);
+      }
+    }, 10000);
+  };
+  
+  const createTargetElement = (msg_id) => {
+    const parentContainer = document.querySelector('.parent-container'); // Assuming there's a container wrapping the messages
+    const newElement = document.createElement('p');
+    newElement.className = `pdf-query-${msg_id} hide`;
+    newElement.textContent = "Your text goes here"; // Replace with your content
+  
+    // Find the button element to insert the new element after it
+    const btnElement = document.getElementById(`btn${msg_id}`); // Assuming your button IDs are like btn0, btn1, etc.
+  
+    // Insert the new element after the button
+    parentContainer.insertBefore(newElement, btnElement.nextSibling);
+  };
+  
 
   
   // ========================================
@@ -483,6 +504,7 @@ const handlePDFSearch = (e) => {
     const formattedTimestamp = `${day} ${hours}:${minutes < 10 ? '0' + minutes : minutes} ${amPm}`;
     setTimeStamp(formattedTimestamp);
   }, []);
+
 
   // ========================================
   // Section: JSX Structure
@@ -532,35 +554,30 @@ const handlePDFSearch = (e) => {
                   <button id={"btn" + index} className={`pdf-btn hide ${darkMode ? 'dark-mode' : ''}`}onClick={handlePDFSearch}><img src={search} alt="" /><img src={load} className='pdf-load hide' alt="" /><p className='slide'>{lang === 'EN'?'Find Insight Report':"Rapport d'analyse"}</p>
                   </button>
               )}
-              {msg.type === 'bot' && pdfMessages[index] && (
-                <p className={`pdf-query-${index} hide`}>
-                 {lang === 'EN'? 'After reviewing your question, I found relevant examples where COMMB has discussed these topics. For more details you can review the reports here:':"Après avoir examiné votre question, j'ai trouvé des exemples pertinents où le COMMB a abordé ces sujets. Pour plus de détails, vous pouvez consulter les rapports ici:"} {' '}
+            {msg.type === 'bot' && pdfMessages[index] && (
+              <p className={`pdf-query-${index} hide`}>
+                {pdfMessagesText[Math.floor(index / 2)]}{lang === "FR" ? " Vous pouvez trouver plus d'informations dans :":" You can find more information in: "}{' '}
+                {/* After reviewing your question, I found relevant examples where COMMB has discussed these topics. For more details you can review the reports here:  */}
                 {pdfMessages[index]?.msg_titles ? (
                   pdfMessages[index].msg_titles.map((title, i) => {
                     const matchingReport = reports.find(report => report.title === title);
-
-                    if (matchingReport) {
-                      return (
-                        <React.Fragment key={i}>
-                          <a className={`pdf-link ${darkMode ? 'dark-mode' : ''}`} href={matchingReport.url} target="_blank" rel="noopener noreferrer">{title}
-                          </a>
-                          {i !== pdfMessages[index].msg_titles.length - 1 && ', '}
-                        </React.Fragment>
-                      );
-                    } else {
-                      return (
-                        <React.Fragment key={i}>
-                          {title}
-                          {i !== pdfMessages[index].msg_titles.length - 1 && ', '}
-                        </React.Fragment>
-                      );
-                    }
+                    return (
+                      <React.Fragment key={i}>
+                        {matchingReport ? (
+                          <a className={`pdf-link ${darkMode ? 'dark-mode' : ''}`} href={matchingReport.url} target="_blank" rel="noopener noreferrer">{title}</a>
+                        ) : (
+                          <span>{title}</span>
+                        )}
+                        {i !== pdfMessages[index].msg_titles.length - 1 && ', '}
+                      </React.Fragment>
+                    );
                   })
                 ) : (
                   <span>No pdf available</span>
                 )}
               </p>
-              )}
+            )}
+
             </div>
           ))}
         </div>
