@@ -70,7 +70,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       const msg_index = messages.length
   
       if (response.status === 200) {
-        const botMessage = response.data.generatedResponse + " Click below if you would like me to look into the COMMB publication for more specific findings.";
+        const botMessage = lang === 'FR' ?response.data.generatedResponse + " Cliquez ci-dessous si vous souhaitez que je recherche davantage de résultats spécifiques dans la publication COMMB.": response.data.generatedResponse + " Click below if you would like me to look into the COMMB publication for more specific findings.";
         if (botMessage) {
           handleTTS(botMessage);
         }
@@ -206,7 +206,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
       const msg_index = messages.length
       if (response.status === 200) {
-        const botMessage = response.data.generatedResponse + " Click below if you would like me to look into the COMMB publication for more specific findings.";
+        const botMessage = lang === 'FR' ?response.data.generatedResponse + " Cliquez ci-dessous si vous souhaitez que je recherche davantage de résultats spécifiques dans la publication COMMB.": response.data.generatedResponse + " Click below if you would like me to look into the COMMB publication for more specific findings.";
         if (botMessage) {
           handleTTS(botMessage);
         }
@@ -287,7 +287,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
             setpdfMessagesText(prevMessages => [...prevMessages, paraphraseResponse.data.generatedResponse]);
             console.log('OPENAI:',paraphraseResponse.data.generatedResponse);
           }
-          
+
           const titles = uniqueFiles.map(filename => {
             const matchingReport = reports.find(report => report.filename === filename);
             return matchingReport ? matchingReport.title : filename;
@@ -581,7 +581,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
               )}
             {msg.type === 'bot' && pdfMessages[index] && (
               <p className={`pdf-query-${index} hide`}>
-                {lang === "FR" ? "Voici ce que j'ai trouvé en lisant les publications de COMMB." : "Here is what I found reading through COMMB publications. "}{pdfMessagesText[Math.floor(index / 2)]}{lang === "FR" ? " Vous pouvez trouver plus d'informations dans :":" You can find more information in: "}{' '}
+                {lang === "FR" ? "Voici ce que j'ai trouvé en lisant les publications de COMMB. " : "Here is what I found reading through COMMB publications. "}{pdfMessagesText[Math.floor(index / 2)]}{lang === "FR" ? " Vous pouvez trouver plus d'informations dans :":" You can find more information in: "}{' '}
                 {/* After reviewing your question, I found relevant examples where COMMB has discussed these topics. For more details you can review the reports here:  */}
                 {pdfMessages[index]?.msg_titles ? (
                   pdfMessages[index].msg_titles.map((title, i) => {
