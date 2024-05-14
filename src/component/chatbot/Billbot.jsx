@@ -70,26 +70,26 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       const msg_index = messages.length
   
       if (response.status === 200) {
-        const data = response.data;
-        if (data.generatedResponse) {
-          handleTTS(data.generatedResponse);
+        const botMessage = response.data.generatedResponse + " Click below if you would like me to look into the COMMB publication for more specific findings.";
+        if (botMessage) {
+          handleTTS(botMessage);
         }
         const botMessageData = {
-          msg_text: data.generatedResponse,
+          msg_text: botMessage,
           type: 'bot',
           timestamp: serverTimestamp()
         };
   
         const messageData = {
           msg_user: userMessageText,
-          msg_bot: data.generatedResponse,
+          msg_bot: botMessage,
           timestamp: serverTimestamp()
         };
+  
   
         await addDoc(collection(db, "messages"), messageData);
   
         setMessages(prevMessages => [...prevMessages, botMessageData]);
-        const botMessage = data.generatedResponse;
   
         let index = 0;
         const typingInterval = setInterval(() => {
@@ -124,15 +124,26 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       const pdfUrl = lang === "FR" ? 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm/fr' : 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm'; 
       const requestData = {
         "chat_history": `${messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|')}`,
-        "query": userMessageText + ' //chatbot response: ' + response.data.generatedResponse + '//'
+        "query": userMessageText + "prior response //" + response.data.generatedResponse + "//"
       };
 
       const pdfResponse = await axios.post(pdfUrl, requestData);
 
       if (pdfResponse.status === 200) {
         const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
-        console.log('SEAPLANE RESPONSE: ', pdfResponse.data[0].result)
-        setpdfMessagesText(prevMessages => [...prevMessages, pdfResponse.data[0].result]);
+        console.log('user query: ' + userMessageText + ' 1st response: ' + response.data.generatedResponse + ' 2nd response: ' + pdfResponse.data[0].result);
+        const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/paraphraseOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/paraphraseOpenAI'; 
+
+        const paraphraseResponse = await axios.post(url, {
+          userMessage:  'user query: ' + userMessageText + ' 1st response: ' + response.data.generatedResponse + ' 2nd response: ' + pdfResponse.data[0].result,
+        }, {
+          timeout: 60000,
+        });
+
+        if (paraphraseResponse.status=== 200) {
+          setpdfMessagesText(prevMessages => [...prevMessages, paraphraseResponse.data.generatedResponse]);
+          console.log('OPENAI:',paraphraseResponse.data.generatedResponse);
+        }
         const titles = uniqueFiles.map(filename => {
           const matchingReport = reports.find(report => report.filename === filename);
           return matchingReport ? matchingReport.title : filename;
@@ -195,26 +206,26 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
       const msg_index = messages.length
       if (response.status === 200) {
-        const data = response.data;
-        if (data.generatedResponse) {
-          handleTTS(data.generatedResponse);
+        const botMessage = response.data.generatedResponse + " Click below if you would like me to look into the COMMB publication for more specific findings.";
+        if (botMessage) {
+          handleTTS(botMessage);
         }
         const botMessageData = {
-          msg_text: data.generatedResponse,
+          msg_text: botMessage,
           type: 'bot',
           timestamp: serverTimestamp()
         };
   
         const messageData = {
           msg_user: userMessageText,
-          msg_bot: data.generatedResponse,
+          msg_bot: botMessage,
           timestamp: serverTimestamp()
         };
   
         await addDoc(collection(db, "messages"), messageData);
   
         setMessages(prevMessages => [...prevMessages, botMessageData]);
-        const botMessage = data.generatedResponse;
+
         let index = 0;
         const typingInterval = setInterval(() => {
           if (index < botMessage.length) {
@@ -254,7 +265,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
         // Second API call
         const requestData = {
           "chat_history": `${messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|')}`,
-          "query": userMessageText + ' //chatbot response: ' + response.data.generatedResponse + '//'
+          "query": userMessageText + "prior response //" + response.data.generatedResponse + "//"
         };
 
         const pdfUrl = lang === "FR" ? 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm/fr' : 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm'; 
@@ -263,8 +274,20 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       
         if (pdfResponse.status === 200) {
           const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
-          console.log('SEAPLANE RESPONSE: ', pdfResponse.data[0].result)
-          setpdfMessagesText(prevMessages => [...prevMessages, pdfResponse.data[0].result]);
+          console.log('user query: ' + userMessageText + ' 1st response: ' + response.data.generatedResponse + ' 2nd response: ' + pdfResponse.data[0].result);
+          const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/paraphraseOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/paraphraseOpenAI'; 
+  
+          const paraphraseResponse = await axios.post(url, {
+            userMessage:  'user query: ' + userMessageText + ' 1st response: ' + response.data.generatedResponse + ' 2nd response: ' + pdfResponse.data[0].result,
+          }, {
+            timeout: 60000,
+          });
+  
+          if (paraphraseResponse.status=== 200) {
+            setpdfMessagesText(prevMessages => [...prevMessages, paraphraseResponse.data.generatedResponse]);
+            console.log('OPENAI:',paraphraseResponse.data.generatedResponse);
+          }
+          
           const titles = uniqueFiles.map(filename => {
             const matchingReport = reports.find(report => report.filename === filename);
             return matchingReport ? matchingReport.title : filename;
@@ -537,7 +560,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
         </div>
         <div className="conversation" ref={conversationRef}>
           <div className='bot'>
-            {lang === 'EN' ? 'Hello, how can I help you?' :'Bonjour, comment puis-je vous aider?'}
+            {lang === 'EN' ? 'Hello, my name is BillBot, and I can answer questions about OOH. How can I help you?' :"Bonjour, je m'appelle BillBot, et je peux répondre aux questions sur les affichages extérieurs. Comment puis-je vous aider?"}
           </div>
           <div className="suggestion">
             <p>{lang === 'EN' ? 'Other people are looking for...':'D\'autres personnes recherchent...'} </p>
@@ -558,7 +581,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
               )}
             {msg.type === 'bot' && pdfMessages[index] && (
               <p className={`pdf-query-${index} hide`}>
-                {pdfMessagesText[Math.floor(index / 2)]}{lang === "FR" ? " Vous pouvez trouver plus d'informations dans :":" You can find more information in: "}{' '}
+                {lang === "FR" ? "Voici ce que j'ai trouvé en lisant les publications de COMMB." : "Here is what I found reading through COMMB publications. "}{pdfMessagesText[Math.floor(index / 2)]}{lang === "FR" ? " Vous pouvez trouver plus d'informations dans :":" You can find more information in: "}{' '}
                 {/* After reviewing your question, I found relevant examples where COMMB has discussed these topics. For more details you can review the reports here:  */}
                 {pdfMessages[index]?.msg_titles ? (
                   pdfMessages[index].msg_titles.map((title, i) => {
