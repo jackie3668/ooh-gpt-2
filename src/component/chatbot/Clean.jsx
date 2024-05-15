@@ -15,7 +15,7 @@ import search from '../../asset/search-interface-symbol.png'
 
 const db = getFirestore(app);
 
-const Billbot = ({ darkMode, setDarkMode }) => {
+const Clean = ({ darkMode, setDarkMode }) => {
   // State variables
   const [messages, setMessages] = useState([]);
   const [pdfMessages, setpdfMessages] = useState([])
@@ -372,7 +372,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
         </div>
         <div className="conversation" ref={conversationRef}>
           <div className='bot'>
-            {lang === 'EN' ? 'Hello, my name is BillBot, and I can answer questions about OOH. How can I help you?' :"Bonjour, je m'appelle BillBot, et je peux répondre aux questions sur les affichages extérieurs. Comment puis-je vous aider?"}
+            {lang === 'EN' ? 'CLEAN Hello, my name is BillBot, and I can answer questions about OOH. How can I help you?' :"Bonjour, je m'appelle BillBot, et je peux répondre aux questions sur les affichages extérieurs. Comment puis-je vous aider?"}
           </div>
           <div className="suggestion">
             <p>{lang === 'EN' ? 'Other people are looking for...':'D\'autres personnes recherchent...'} </p>
@@ -430,4 +430,4 @@ const Billbot = ({ darkMode, setDarkMode }) => {
   );
 }
 
-export default Billbot
+export default Clean
