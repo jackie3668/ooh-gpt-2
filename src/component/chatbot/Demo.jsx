@@ -37,33 +37,33 @@ const Demo = ({ darkMode, setDarkMode }) => {
 
   const questionAnswerData = [
     {
-      question: "What is the tallest mountain on Earth?",
-      answer: "Mount Everest, located in the Himalayas, is the tallest mountain on Earth, with a peak elevation of 8,848.86 meters (29,031.7 feet) above sea level."
+      question: "Welcome, Billbot! Can you tell us a little about what OOH advertising is?",
+      answer: "Absolutely! OOH, or Out-of-Home advertising, refers to any visual advertising media found outside of the home. This includes billboards, transit ads, street furniture, and more. It’s all about reaching people when they’re on the go."
     },
     {
-      question: "Who is the first person to set foot on the Moon?",
-      answer: "Neil Armstrong, an American astronaut, was the first person to set foot on the Moon on July 20, 1969, during the Apollo 11 mission."
+      question: "That sounds fascinating! How is AI changing the landscape of OOH advertising?",
+      answer: "AI is revolutionizing OOH advertising by making it more dynamic and targeted. For instance, AI can analyze traffic patterns and demographic data to optimize ad placements. It can also adjust digital billboards in real-time based on weather conditions or current events, ensuring the right message reaches the right audience at the right time."
     },
     {
-      question: "What is the capital city of Australia?",
-      answer: "Canberra is the capital city of Australia. It is located in the Australian Capital Territory and serves as the political center of the country."
+      question: "Can you give us an example of AI application in OOH advertising?",
+      answer: "Certainly! One exciting application is using AI to measure ad visibility. By analyzing data from cameras and sensors, AI can determine how many people see an ad and for how long. This helps advertisers understand the impact of their campaigns and make data-driven decisions to improve them."
     },
     {
-      question: "Which planet is known as the 'Red Planet'?",
-      answer: "Mars is often referred to as the 'Red Planet' due to its reddish appearance, caused by iron oxide (rust) present on its surface."
+      question: "That’s impressive! What can participants expect to learn from the course you’re part of?",
+      answer: "Participants will delve into how AI technologies like machine learning, computer vision, and big data analytics are transforming OOH advertising. Plus, they’ll explore other key aspects of OOH advertising through various modules taught by industry experts."
     },
     {
-      question: "What is the largest organ in the billboards?",
-      answer: "The skin is the largest organ in the human body. It serves as a protective barrier against environmental hazards and helps regulate body temperature."
+      question: "Thank you, Billbot! We’re excited to learn more.",
+      answer: "My pleasure! I look forward to helping everyone unlock the potential of OOH advertising. Join us and discover how to make your advertising smarter and more effective!"
     }
   ];
   // ========================================
   // Section: Functions
   // ========================================
   const sendMessage = async () => {
+    console.log(userMessage);
     const qaPair = questionAnswerData.find((qa) => qa.question.toLowerCase().includes(userMessage.toLowerCase()));
-    setAnswer(qaPair.answer)
-    console.log(qaPair.answer);
+    console.log(qaPair);
     const botAnswer = qaPair.answer
     const sendButton = document.querySelector('.send-button');
     if (sendButton.classList.contains('inactive')) {

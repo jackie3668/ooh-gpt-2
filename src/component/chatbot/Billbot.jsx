@@ -50,7 +50,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       msg_text: userMessage,
       type: 'user'
     };
-
+    console.log('current user query:', userMessage);
     setMessages(prevMessages => [...prevMessages, userMessageData]);
     
     const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI'; 
@@ -64,6 +64,8 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       if (botMessage) {
         handleTTS(botMessage);
       }
+      console.log('initial openai response:', response.data.generatedResponse );
+
       const botMessageData = {
         msg_text: botMessage,
         type: 'bot',
@@ -198,6 +200,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
     const pdfResponse = await axios.post(pdfUrl, requestData);
     if (pdfResponse.status === 200) {
+      console.log('seaplane response:', pdfResponse.data[0].result);
       handleParaphrase(pdfResponse, userMessage, response, msg_index)
     } else {
       console.error('Error getting seaplane response.');
@@ -206,13 +209,13 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
   const handleParaphrase = async (pdfResponse, userMessage, response, msg_index) => {
     const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
-
     const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/paraphraseOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/paraphraseOpenAI'; 
     const paraphraseResponse = await axios.post(url, {
       userMessage:  'user query: ' + userMessage + ' 1st response: ' + response.data.generatedResponse + ' 2nd response: ' + pdfResponse.data[0].result,
     });
-
+    console.log('sending seaplane response to openai');
     if (paraphraseResponse.status=== 200) {
+      console.log('paraphrased response by openai:', paraphraseResponse.data.generatedResponse);
       const titles = uniqueFiles.map(filename => {
         const matchingReport = reports.find(report => report.filename === filename);
         return matchingReport ? matchingReport.title : filename;
@@ -374,7 +377,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
           <div className='bot'>
             {lang === 'EN' ? 'Hello, my name is BillBot, and I can answer questions about OOH. How can I help you?' :"Bonjour, je m'appelle BillBot, et je peux répondre aux questions sur les affichages extérieurs. Comment puis-je vous aider?"}
           </div>
-          <div className="suggestion">
+          {/* <div className="suggestion">
             <p>{lang === 'EN' ? 'Other people are looking for...':'D\'autres personnes recherchent...'} </p>
             <div>
               {lang === 'EN' ? tags.map((tag, index) => (
@@ -383,7 +386,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
                 <p className={`tag ${allowTagClick ? '' : 'inactive'}`}  key={index} onClick={allowTagClick ? handleTagClick : () => {}}>{tag}</p>
               ))}
             </div>
-          </div>
+          </div> */}
           {messages.map((msg, index) => (
             <div key={index} className={msg.type}>
               <p>{msg.msg_text}</p>
