@@ -64,7 +64,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       if (botMessage) {
         handleTTS(botMessage);
       }
-      console.log('initial openai response:', response.data.generatedResponse );
+      console.log('message index', msg_index, 'initial openai response:', response.data.generatedResponse );
 
       const botMessageData = {
         msg_text: botMessage,
@@ -200,7 +200,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
     const pdfResponse = await axios.post(pdfUrl, requestData);
     if (pdfResponse.status === 200) {
-      console.log('seaplane response:', pdfResponse.data[0].result);
+      console.log('message index', msg_index, 'seaplane response:', pdfResponse.data[0].result);
       handleParaphrase(pdfResponse, userMessage, response, msg_index)
     } else {
       console.error('Error getting seaplane response.');
@@ -213,9 +213,9 @@ const Billbot = ({ darkMode, setDarkMode }) => {
     const paraphraseResponse = await axios.post(url, {
       userMessage:  'user query: ' + userMessage + ' 1st response: ' + response.data.generatedResponse + ' 2nd response: ' + pdfResponse.data[0].result,
     });
-    console.log('sending seaplane response to openai');
+    console.log('message index', msg_index,'sending seaplane response to openai');
     if (paraphraseResponse.status=== 200) {
-      console.log('paraphrased response by openai:', paraphraseResponse.data.generatedResponse);
+      console.log('message index', msg_index,'paraphrased response by openai:', paraphraseResponse.data.generatedResponse);
       const titles = uniqueFiles.map(filename => {
         const matchingReport = reports.find(report => report.filename === filename);
         return matchingReport ? matchingReport.title : filename;
