@@ -62,9 +62,10 @@ const Billbot = ({ darkMode, setDarkMode }) => {
     if (response.status === 200) {
       const botMessage = lang === 'FR' ? response.data.generatedResponse + " Cliquez ci-dessous si vous souhaitez que je recherche davantage de résultats spécifiques dans la publication COMMB.": response.data.generatedResponse + " Click below if you would like me to look into the COMMB publication for more specific findings.";
       if (botMessage) {
-        handleTTS(botMessage);
+        const ttsMessage = botMessage.replace('COMMB', 'comb')
+        handleTTS(ttsMessage);
       }
-      console.log('message index', msg_index, 'initial openai response:', response.data.generatedResponse );
+      console.log('initial openai response:', response.data.generatedResponse );
 
       const botMessageData = {
         msg_text: botMessage,
@@ -73,85 +74,6 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       };
       const messageData = {
         msg_user: userMessage,
-        msg_bot: botMessage,
-        timestamp: serverTimestamp()
-      };
-      await addDoc(collection(db, "messages"), messageData);
-      setMessages(prevMessages => [...prevMessages, botMessageData]);
-      let index = 0;
-      const typingInterval = setInterval(() => {
-        if (index < botMessage.length) {
-          const botMessageWithTyping = botMessage.substring(0, index + 1);
-          const updatedBotMessageData = {
-            ...botMessageData,
-            msg_text: botMessageWithTyping
-          };
-          setMessages(prevMessages => {
-            const updatedMessages = [...prevMessages];
-            updatedMessages[prevMessages.length - 1] = updatedBotMessageData;
-            return updatedMessages;
-          });
-          index++;
-        } else {
-          clearInterval(typingInterval);
-          setAllowTagClick(true)
-          sendButton.classList.remove('inactive');
-          const btn = document.querySelector(`button#btn${messages.length+1}`);
-          if (btn) {
-            btn.classList.remove('hide')
-            btn.classList.add('fade-in')
-          } else {
-            console.log(false);
-          }
-        }
-      }, 25);
-      setTypingIntervalId(typingInterval);
-    } else {
-      console.error('Error getting intial response.');
-    }      
-    handlePDFResponse(response, msg_index)
-  };
-  
-  const handleTagClick = async (e) => {
-    const sendButton = document.querySelector('.send-button');
-    if (sendButton.classList.contains('inactive')) {
-      return;
-    }
-    sendButton.classList.add('inactive')
-    const tags = document.querySelectorAll('.tag')
-    e.target.classList.add('selected')
-    setAllowTagClick(false)
-    tags.forEach(tag => {
-      tag.classList.add('inactive')
-    })
-
-    const userMessageText = (lang === "FR" ? "Parle moi de": "Tell me about ") + e.target.innerText.toLowerCase() + '.';
-    setUserMessage("");
-    const userMessageData = {
-      msg_text: userMessageText,
-      type: 'user'
-    };
-
-    setMessages(prevMessages => [...prevMessages, userMessageData]);
-    
-    const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI'; 
-    const response = await axios.post(url, {
-      userMessage: 'current user message: ' + userMessageText,
-    });
-
-    const msg_index = messages.length
-    if (response.status === 200) {
-      const botMessage = lang === 'FR' ? response.data.generatedResponse + " Cliquez ci-dessous si vous souhaitez que je recherche davantage de résultats spécifiques dans la publication COMMB.": response.data.generatedResponse + " Click below if you would like me to look into the COMMB publication for more specific findings.";
-      if (botMessage) {
-        handleTTS(botMessage);
-      }
-      const botMessageData = {
-        msg_text: botMessage,
-        type: 'bot',
-        timestamp: serverTimestamp()
-      };
-      const messageData = {
-        msg_user: userMessageText,
         msg_bot: botMessage,
         timestamp: serverTimestamp()
       };
@@ -200,7 +122,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
     const pdfResponse = await axios.post(pdfUrl, requestData);
     if (pdfResponse.status === 200) {
-      console.log('message index', msg_index, 'seaplane response:', pdfResponse.data[0].result);
+      console.log('seaplane response:', pdfResponse.data[0].result);
       handleParaphrase(pdfResponse, userMessage, response, msg_index)
     } else {
       console.error('Error getting seaplane response.');
@@ -213,9 +135,9 @@ const Billbot = ({ darkMode, setDarkMode }) => {
     const paraphraseResponse = await axios.post(url, {
       userMessage:  'user query: ' + userMessage + ' 1st response: ' + response.data.generatedResponse + ' 2nd response: ' + pdfResponse.data[0].result,
     });
-    console.log('message index', msg_index,'sending seaplane response to openai');
+    console.log('sending seaplane response to openai');
     if (paraphraseResponse.status=== 200) {
-      console.log('message index', msg_index,'paraphrased response by openai:', paraphraseResponse.data.generatedResponse);
+      console.log('paraphrased response by openai:', paraphraseResponse.data.generatedResponse);
       const titles = uniqueFiles.map(filename => {
         const matchingReport = reports.find(report => report.filename === filename);
         return matchingReport ? matchingReport.title : filename;
@@ -234,6 +156,85 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       console.error('Error getting paraphrase response.');
     }
   }
+  
+  // const handleTagClick = async (e) => {
+  //   const sendButton = document.querySelector('.send-button');
+  //   if (sendButton.classList.contains('inactive')) {
+  //     return;
+  //   }
+  //   sendButton.classList.add('inactive')
+  //   const tags = document.querySelectorAll('.tag')
+  //   e.target.classList.add('selected')
+  //   setAllowTagClick(false)
+  //   tags.forEach(tag => {
+  //     tag.classList.add('inactive')
+  //   })
+
+  //   const userMessageText = (lang === "FR" ? "Parle moi de": "Tell me about ") + e.target.innerText.toLowerCase() + '.';
+  //   setUserMessage("");
+  //   const userMessageData = {
+  //     msg_text: userMessageText,
+  //     type: 'user'
+  //   };
+
+  //   setMessages(prevMessages => [...prevMessages, userMessageData]);
+    
+  //   const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI'; 
+  //   const response = await axios.post(url, {
+  //     userMessage: 'current user message: ' + userMessageText,
+  //   });
+
+  //   const msg_index = messages.length
+  //   if (response.status === 200) {
+  //     const botMessage = lang === 'FR' ? response.data.generatedResponse + " Cliquez ci-dessous si vous souhaitez que je recherche davantage de résultats spécifiques dans la publication COMMB.": response.data.generatedResponse + " Click below if you would like me to look into the COMMB publication for more specific findings.";
+  //     if (botMessage) {
+  //       handleTTS(botMessage);
+  //     }
+  //     const botMessageData = {
+  //       msg_text: botMessage,
+  //       type: 'bot',
+  //       timestamp: serverTimestamp()
+  //     };
+  //     const messageData = {
+  //       msg_user: userMessageText,
+  //       msg_bot: botMessage,
+  //       timestamp: serverTimestamp()
+  //     };
+  //     await addDoc(collection(db, "messages"), messageData);
+  //     setMessages(prevMessages => [...prevMessages, botMessageData]);
+  //     let index = 0;
+  //     const typingInterval = setInterval(() => {
+  //       if (index < botMessage.length) {
+  //         const botMessageWithTyping = botMessage.substring(0, index + 1);
+  //         const updatedBotMessageData = {
+  //           ...botMessageData,
+  //           msg_text: botMessageWithTyping
+  //         };
+  //         setMessages(prevMessages => {
+  //           const updatedMessages = [...prevMessages];
+  //           updatedMessages[prevMessages.length - 1] = updatedBotMessageData;
+  //           return updatedMessages;
+  //         });
+  //         index++;
+  //       } else {
+  //         clearInterval(typingInterval);
+  //         setAllowTagClick(true)
+  //         sendButton.classList.remove('inactive');
+  //         const btn = document.querySelector(`button#btn${messages.length+1}`);
+  //         if (btn) {
+  //           btn.classList.remove('hide')
+  //           btn.classList.add('fade-in')
+  //         } else {
+  //           console.log(false);
+  //         }
+  //       }
+  //     }, 25);
+  //     setTypingIntervalId(typingInterval);
+  //   } else {
+  //     console.error('Error getting intial response.');
+  //   }      
+  //   handlePDFResponse(response, msg_index)
+  // };
   
   const handleKeyDown = (e) => {
     if (allowTagClick && userMessage && e.key === 'Enter') {
