@@ -55,7 +55,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
     
     const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI'; 
     const response = await axios.post(url, {
-      userMessage: 'current user message: ' + userMessage + ' previous chat history: ' + messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|') ,
+      userMessage: 'current user message: ' + userMessage ,
     });
 
     const msg_index = messages.length
@@ -136,7 +136,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
     
     const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI'; 
     const response = await axios.post(url, {
-      userMessage: 'current user message: ' + userMessageText + ' previous chat history: ' + messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|') ,
+      userMessage: 'current user message: ' + userMessageText,
     });
 
     const msg_index = messages.length
