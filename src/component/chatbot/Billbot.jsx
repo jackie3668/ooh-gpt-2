@@ -389,10 +389,10 @@ const Billbot = ({ darkMode, setDarkMode }) => {
             </div>
           </div> */}
           {messages.map((msg, index) => (
-            <div key={index} className={msg.type}>
+            <div key={index} className={msg.type} >
               <p>{msg.msg_text}</p>
               {msg.type === 'bot' && (
-                  <button id={"btn" + index} className={`pdf-btn hide ${darkMode ? 'dark-mode' : ''}`}onClick={handlePDFSearch}><img src={search} alt="" /><img src={load} className='pdf-load hide' alt="" /><p className='slide'>{lang === 'EN'?'Find Insight Report':"Rapport d'analyse"}</p>
+                  <button id={"btn" + index} className={`pdf-btn hide`}onClick={handlePDFSearch}><img src={search} alt="" /><img src={load} className='pdf-load hide' alt="" /><p className='slide'>{lang === 'EN'?'Find Insight Report':"Rapport d'analyse"}</p>
                   </button>
               )}
             {msg.type === 'bot' && pdfMessages[index] && (

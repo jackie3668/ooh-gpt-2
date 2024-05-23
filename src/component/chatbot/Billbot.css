@@ -468,13 +468,12 @@
   color: var(--light-red)
 }
 
-.chatbot.dark .bot .pdf-btn.dark-mode p {
-  font-weight: 800;
-  color: var(--white);
+.chatbox.dark .bot>button img:first-child{
+  filter: invert(1);
 }
 
-.chatbot .pdf-btn.dark-mode img:first-child {
-  filter: invert(1);
+.chatbox.dark .bot>button  p {
+  color: var(--white);
 }
 
 /* RESPONSIVE */
