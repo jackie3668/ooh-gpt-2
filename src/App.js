@@ -13,7 +13,7 @@ function App() {
     <Router>
       <div className={`App ${darkMode ? 'dark' : ''}`}>
         <Routes>
-        <Route path='/' Component={Billbot} />
+        <Route path='/' element={<Billbot darkMode={darkMode} setDarkMode={setDarkMode} />}/>
         <Route path='/demo' Component={Demo} />
         <Route path='/clean' Component={Clean} />
       </Routes>
