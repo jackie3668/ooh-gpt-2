@@ -255,6 +255,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
   const handleTTS = async (text) => {
     if (!ttsEnabled) return;
     text = text.replace(/COMMB/g, 'comb')
+    text = text.replace(/OOH/g, 'O O H')
     try {
       const response = await fetch('https://ooh-gpt-2-0-tts-openai.onrender.com/synthesize', {
         method: 'POST',

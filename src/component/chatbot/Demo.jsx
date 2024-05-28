@@ -64,29 +64,31 @@ const Demo = ({ darkMode, setDarkMode }) => {
     console.log(userMessage);
     const qaPair = questionAnswerData.find((qa) => qa.question.toLowerCase().includes(userMessage.toLowerCase()));
     console.log(qaPair);
-    const botAnswer = qaPair.answer
+    const botAnswer = qaPair ? qaPair.answer : null;
     const sendButton = document.querySelector('.send-button');
+    
     if (sendButton.classList.contains('inactive')) {
       return;
     }
-    sendButton.classList.add('inactive')
+    sendButton.classList.add('inactive');
   
     if (!userMessage) {
       return;
     }
-
-    const userMessageText = userMessage
-    setAllowTagClick(false)
+  
+    const userMessageText = userMessage;
+    setAllowTagClick(false);
     setUserMessage("");
+    
     try {
       const userMessageData = {
         msg_text: userMessageText,
         type: 'user'
       };
       setMessages(prevMessages => [...prevMessages, userMessageData]);
-        
+  
       if (botAnswer) {
-        const botMessage = botAnswer
+        const botMessage = botAnswer;
         if (botMessage) {
           handleTTS(botMessage);
         }
@@ -94,42 +96,48 @@ const Demo = ({ darkMode, setDarkMode }) => {
           msg_text: botMessage,
           type: 'bot',
           timestamp: serverTimestamp()
-        }
-        setMessages(prevMessages => [...prevMessages, botMessageData]);
+        };
+      
   
         let index = 0;
-        const typingInterval = setInterval(() => {
-          if (index < botMessage.length) {
-            const botMessageWithTyping = botMessage.substring(0, index + 1);
-            const updatedBotMessageData = {
-              ...botMessageData,
-              msg_text: botMessageWithTyping
-            };
-            setMessages(prevMessages => {
-              const updatedMessages = [...prevMessages];
-              updatedMessages[prevMessages.length - 1] = updatedBotMessageData;
-              return updatedMessages;
-            });
-            index++;
-          } else {
-            clearInterval(typingInterval);
-            setAllowTagClick(true)
-            sendButton.classList.remove('inactive');
-            const btn = document.querySelector(`button#btn${messages.length+1}`);
-            if (btn) {
-              btn.classList.remove('hide')
-              btn.classList.add('fade-in')
+        const typingDelay = 2000; // Delay in milliseconds before typing starts
+        
+        setTimeout(() => {
+          const typingInterval = setInterval(() => {
+            if (index < botMessage.length) {
+              const botMessageWithTyping = botMessage.substring(0, index + 1);
+              const updatedBotMessageData = {
+                ...botMessageData,
+                msg_text: botMessageWithTyping
+              };
+              setMessages(prevMessages => {
+                const updatedMessages = [...prevMessages];
+                updatedMessages[prevMessages.length - 1] = updatedBotMessageData;
+                return updatedMessages;
+              });
+              index++;
             } else {
-              console.log(false);
+              clearInterval(typingInterval);
+              setAllowTagClick(true);
+              sendButton.classList.remove('inactive');
+              const btn = document.querySelector(`button#btn${messages.length + 1}`);
+              if (btn) {
+                btn.classList.remove('hide');
+                btn.classList.add('fade-in');
+              } else {
+                console.log(false);
+              }
             }
-          }
-        }, 25);
-        setTypingIntervalId(typingInterval);
-      }      
+          }, 30);
+          setTypingIntervalId(typingInterval);
+          setMessages(prevMessages => [...prevMessages, botMessageData]);
+        }, typingDelay);
+      }
     } catch (error) {
       console.error('Error:', error);
-    } 
+    }
   };
+  
   
   const handleTagClick = async (e) => {
     const qaPair = questionAnswerData.find((qa) => qa.question.toLowerCase().includes(e.target.innerText.toLowerCase().toLowerCase()));
@@ -194,7 +202,7 @@ const Demo = ({ darkMode, setDarkMode }) => {
               console.log(false);
             }
           }
-        }, 25);
+        }, 500);
         setTypingIntervalId(typingInterval);
       }      
     } catch (error) {
@@ -233,7 +241,8 @@ const Demo = ({ darkMode, setDarkMode }) => {
 
   const handleTTS = async (text) => {
     if (!ttsEnabled) return;
-  
+    text = text.replace(/COMMB/g, 'comb')
+    text = text.replace(/OOH/g, 'O O H')
     try {
       const response = await fetch('https://ooh-gpt-2-0-tts-openai.onrender.com/synthesize', {
         method: 'POST',
@@ -420,10 +429,10 @@ const Demo = ({ darkMode, setDarkMode }) => {
         </div>
         <div className="conversation" ref={conversationRef}>
           <div className='bot'>
-            {lang === 'EN' ? 'demo: Hello, my name is BillBot, and I can answer questions about OOH. How can I help you?' :"Bonjour, je m'appelle BillBot, et je peux répondre aux questions sur les affichages extérieurs. Comment puis-je vous aider?"}
+            {lang === 'EN' ? 'Hello, my name is BillBot, and I can answer questions about OOH. How can I help you?' :"Bonjour, je m'appelle BillBot, et je peux répondre aux questions sur les affichages extérieurs. Comment puis-je vous aider?"}
           </div>
           <div className="suggestion">
-            <p>{lang === 'EN' ? 'Other people are looking for...':'D\'autres personnes recherchent...'} </p>
+            {/* <p>{lang === 'EN' ? 'Other people are looking for...':'D\'autres personnes recherchent...'} </p> */}
             {/* <div>
               {lang === 'EN' ? tags.map((tag, index) => (
                 <p className={`tag ${allowTagClick ? '' : 'inactive'}`}  key={index} onClick={allowTagClick ? handleTagClick : () => {}}>{tag}</p>
