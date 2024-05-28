@@ -424,13 +424,13 @@ const Demo = ({ darkMode, setDarkMode }) => {
           </div>
           <div className="suggestion">
             <p>{lang === 'EN' ? 'Other people are looking for...':'D\'autres personnes recherchent...'} </p>
-            <div>
+            {/* <div>
               {lang === 'EN' ? tags.map((tag, index) => (
                 <p className={`tag ${allowTagClick ? '' : 'inactive'}`}  key={index} onClick={allowTagClick ? handleTagClick : () => {}}>{tag}</p>
               )) : tagsFR.map((tag, index) => (
                 <p className={`tag ${allowTagClick ? '' : 'inactive'}`}  key={index} onClick={allowTagClick ? handleTagClick : () => {}}>{tag}</p>
               ))}
-            </div>
+            </div> */}
           </div>
           {messages.map((msg, index) => (
             <div key={index} className={msg.type}>

@@ -13,10 +13,10 @@ function App() {
     <Router>
       <div className={`App ${darkMode ? 'dark' : ''}`}>
         <Routes>
-        <Route path='/' element={<Billbot darkMode={darkMode} setDarkMode={setDarkMode} />}/>
-        <Route path='/demo' Component={Demo} />
-        <Route path='/clean' Component={Clean} />
-      </Routes>
+          <Route path='/' element={<Billbot darkMode={darkMode} setDarkMode={setDarkMode} />}/>
+          <Route path='/demo' element={<Demo darkMode={darkMode} setDarkMode={setDarkMode} />}/>
+          <Route path='/clean' Component={Clean} />
+        </Routes>
       </div>
     </Router>
   );
