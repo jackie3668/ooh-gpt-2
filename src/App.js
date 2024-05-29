@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
+import ReactGA from 'react-ga';
 import Billbot from './component/chatbot/Billbot';
 import Demo from './component/chatbot/Demo';
 import Clean from './component/chatbot/Clean';
 
+const TRACKING_ID = "G-ST9BCR1WKQ"
+ReactGA.initialize(TRACKING_ID)
 function App() {
   const [darkMode, setDarkMode] = useState(false)
   const [demo, setDemo] = useState(null)

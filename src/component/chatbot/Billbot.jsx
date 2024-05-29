@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore'
 import { app } from '../../firebase'
 import axios from 'axios'; 
+import ReactGA from "react-ga"
 import './Billbot.css'
 import reports from '../../data/reports'
 import load from '../../asset/COMMB Loading (1).gif'
@@ -14,6 +15,8 @@ import darkSound from '../../asset/dark-sound.png'
 import search from '../../asset/search-interface-symbol.png'
 
 const db = getFirestore(app);
+const TRACKING_ID = "G-ST9BCR1WKQ"
+ReactGA.initialize(TRACKING_ID)
 
 const Billbot = ({ darkMode, setDarkMode }) => {
   // State variables
@@ -25,6 +28,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
   const [allowTagClick, setAllowTagClick] = useState(true);
   const [typingIntervalId, setTypingIntervalId] = useState(null);
   const [timeStamp, setTimeStamp] = useState(null)
+  const [ipAddress, setIpAddress] = useState(null);
   const [currentAudio, setCurrentAudio] = useState(null);
   const tags = ['Insight Report', 'Billboards', 'Road Segments', 'Vehicle Data', 'Pedestrian', 'etc' ]
   const tagsFR = ["Rapport D'Analyse",  "Panneaux Publicitaires",  "Segments De Route",  "Données Véhicule",  "Piéton",  "Etc"]
@@ -36,6 +40,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
   const sendMessage = async () => {
     const sendButton = document.querySelector('.send-button');
+    logEvent('User Input', 'Send Message', userMessage);
     if (sendButton.classList.contains('inactive')) {
       return;
     }
@@ -50,7 +55,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       msg_text: userMessage,
       type: 'user'
     };
-    console.log('current user query:', userMessage);
+    // console.log('current user query:', userMessage);
     setMessages(prevMessages => [...prevMessages, userMessageData]);
     
     const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/sendMsgToOpenAI'; 
@@ -65,7 +70,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
         const ttsMessage = botMessage.replace('COMMB', 'comb')
         handleTTS(ttsMessage);
       }
-      console.log('initial openai response:', response.data.generatedResponse );
+      // console.log('initial openai response:', response.data.generatedResponse );
 
       const botMessageData = {
         msg_text: botMessage,
@@ -74,7 +79,8 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       };
       const messageData = {
         msg_user: userMessage,
-        msg_bot: botMessage,
+        msg_bot_initial: botMessage,
+        ip_address: ipAddress,
         timestamp: serverTimestamp()
       };
       await addDoc(collection(db, "messages"), messageData);
@@ -122,7 +128,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
     const pdfResponse = await axios.post(pdfUrl, requestData);
     if (pdfResponse.status === 200) {
-      console.log('seaplane response:', pdfResponse.data[0].result);
+      // console.log('seaplane response:', pdfResponse.data[0].result);
       handleParaphrase(pdfResponse, userMessage, response, msg_index)
     } else {
       console.error('Error getting seaplane response.');
@@ -135,9 +141,9 @@ const Billbot = ({ darkMode, setDarkMode }) => {
     const paraphraseResponse = await axios.post(url, {
       userMessage:  'user query: ' + userMessage + ' 1st response: ' + response.data.generatedResponse + ' 2nd response: ' + pdfResponse.data[0].result,
     });
-    console.log('sending seaplane response to openai');
+    // console.log('sending seaplane response to openai');
     if (paraphraseResponse.status=== 200) {
-      console.log('paraphrased response by openai:', paraphraseResponse.data.generatedResponse);
+      // console.log('paraphrased response by openai:', paraphraseResponse.data.generatedResponse);
       const titles = uniqueFiles.map(filename => {
         const matchingReport = reports.find(report => report.filename === filename);
         return matchingReport ? matchingReport.title : filename;
@@ -152,10 +158,41 @@ const Billbot = ({ darkMode, setDarkMode }) => {
         updatedMessages[msg_index + 1] = updatedBotMessageData;
         return updatedMessages;
       });
+      const messageData = {
+        msg_user: userMessage,
+        msg_user: userMessage,
+        msg_bot_seaplane: pdfResponse.data[0].result,
+        msg_bot_files: pdfResponse.data[0].source_urls,
+        msg_bot_paraphrased: paraphraseResponse.data.generatedResponse,
+        ip_address: ipAddress,
+        timestamp: serverTimestamp()
+      };
+      await addDoc(collection(db, "messages"), messageData);
     } else {
       console.error('Error getting paraphrase response.');
     }
   }
+
+  const logEvent = (category, action, label = '') => {
+    ReactGA.event({
+      category,
+      action,
+      label,
+    });
+  };
+
+  useEffect(() => {
+    const fetchIpAddress = async () => {
+      try {
+        const response = await axios.get('https://api.ipify.org?format=json');
+        setIpAddress(response.data.ip);
+      } catch (error) {
+        console.error('Error fetching IP address:', error);
+      }
+    };
+
+    fetchIpAddress();
+  }, []);
   
   // const handleTagClick = async (e) => {
   //   const sendButton = document.querySelector('.send-button');
@@ -345,6 +382,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
     const amPm = now.getHours() >= 12 ? 'PM' : 'AM';
     const formattedTimestamp = `${day} ${hours}:${minutes < 10 ? '0' + minutes : minutes} ${amPm}`;
     setTimeStamp(formattedTimestamp);
+    ReactGA.pageview(window.location.pathname)
   }, []);
 
 
