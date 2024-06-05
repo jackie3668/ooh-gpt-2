@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import ReactGA from 'react-ga';
+import ReactGA from 'react-ga4';
 import Billbot from './component/chatbot/Billbot';
 import Demo from './component/chatbot/Demo';
 import Clean from './component/chatbot/Clean';

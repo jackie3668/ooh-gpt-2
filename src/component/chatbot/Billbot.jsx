@@ -16,7 +16,7 @@ import search from '../../asset/search-interface-symbol.png'
 
 const db = getFirestore(app);
 const TRACKING_ID = "G-ST9BCR1WKQ"
-ReactGA.initialize(TRACKING_ID)
+ReactGA.initialize(TRACKING_ID, { debug_mode: true });
 
 const Billbot = ({ darkMode, setDarkMode }) => {
   // State variables
@@ -40,7 +40,13 @@ const Billbot = ({ darkMode, setDarkMode }) => {
 
   const sendMessage = async () => {
     const sendButton = document.querySelector('.send-button');
-    logEvent('User Input', 'Send Message', userMessage);
+    ReactGA.event({
+      category: 'Chatbot Interaction',
+      action: 'User Message',
+      label: userMessage,
+    });
+
+
     if (sendButton.classList.contains('inactive')) {
       return;
     }
@@ -382,7 +388,9 @@ const Billbot = ({ darkMode, setDarkMode }) => {
     const amPm = now.getHours() >= 12 ? 'PM' : 'AM';
     const formattedTimestamp = `${day} ${hours}:${minutes < 10 ? '0' + minutes : minutes} ${amPm}`;
     setTimeStamp(formattedTimestamp);
-    ReactGA.pageview(window.location.pathname)
+    const TRACKING_ID = "G-ST9BCR1WKQ"
+    ReactGA.initialize(TRACKING_ID);
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname + window.location.search });
   }, []);
 
 
