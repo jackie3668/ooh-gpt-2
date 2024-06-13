@@ -126,7 +126,7 @@ const Billbot = ({ darkMode, setDarkMode }) => {
   };
 
   const handlePDFResponse = async (response, msg_index) => {
-    const pdfUrl = 'http://localhost:5010/rag' 
+    const pdfUrl = 'https://ooh-gpt-2-0-tts-openai.onrender.com/rag' 
     const requestData = {
       query: userMessage,
       filter: { language: "en-US" }
