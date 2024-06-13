@@ -30,8 +30,8 @@ const Billbot = ({ darkMode, setDarkMode }) => {
   const [timeStamp, setTimeStamp] = useState(null)
   const [ipAddress, setIpAddress] = useState(null);
   const [currentAudio, setCurrentAudio] = useState(null);
-  const tags = ['Insight Report', 'Billboards', 'Road Segments', 'Vehicle Data', 'Pedestrian', 'etc' ]
-  const tagsFR = ["Rapport D'Analyse",  "Panneaux Publicitaires",  "Segments De Route",  "Données Véhicule",  "Piéton",  "Etc"]
+  // const tags = ['Insight Report', 'Billboards', 'Road Segments', 'Vehicle Data', 'Pedestrian', 'etc' ]
+  // const tagsFR = ["Rapport D'Analyse",  "Panneaux Publicitaires",  "Segments De Route",  "Données Véhicule",  "Piéton",  "Etc"]
   const conversationRef = useRef(null);
 
   // ========================================
@@ -126,38 +126,43 @@ const Billbot = ({ darkMode, setDarkMode }) => {
   };
 
   const handlePDFResponse = async (response, msg_index) => {
-    const pdfUrl = lang === "FR" ? 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm/fr' : 'https://ooh-gpt-2-0-tts-openai.onrender.com/llm'; 
+    const pdfUrl = 'http://localhost:5010/rag' 
     const requestData = {
-      "chat_history": `${messages.filter(msg => msg.type === 'user').map(msg => msg.msg_text).join('|')}`,
-      "query": userMessage + "prior response //" + response.data.generatedResponse + "//"
+      query: userMessage,
+      filter: { language: "en-US" }
     };
+  
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+  
 
-    const pdfResponse = await axios.post(pdfUrl, requestData);
+    const pdfResponse = await fetch(pdfUrl, {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(requestData)
+    });
     if (pdfResponse.status === 200) {
-      // console.log('seaplane response:', pdfResponse.data[0].result);
-      handleParaphrase(pdfResponse, userMessage, response, msg_index)
+       const responseData = await pdfResponse.json();
+      handleParaphrase(responseData, userMessage, response, msg_index)
     } else {
       console.error('Error getting seaplane response.');
     }
   }
 
   const handleParaphrase = async (pdfResponse, userMessage, response, msg_index) => {
-    const uniqueFiles = [...new Set(pdfResponse.data[0].source_urls)];
     const url = lang === "FR" ? `https://ooh-gpt-2-0-tts-openai.onrender.com/paraphraseOpenAI/fr` : 'https://ooh-gpt-2-0-tts-openai.onrender.com/paraphraseOpenAI'; 
     const paraphraseResponse = await axios.post(url, {
-      userMessage:  'user query: ' + userMessage + ' 1st response: ' + response.data.generatedResponse + ' 2nd response: ' + pdfResponse.data[0].result,
+      userMessage:  'user query: ' + userMessage + ' 1st response: ' + response.data.generatedResponse + ' 2nd response: ' + pdfResponse.response,
     });
+
     // console.log('sending seaplane response to openai');
     if (paraphraseResponse.status=== 200) {
       // console.log('paraphrased response by openai:', paraphraseResponse.data.generatedResponse);
-      const titles = uniqueFiles.map(filename => {
-        const matchingReport = reports.find(report => report.filename === filename);
-        return matchingReport ? matchingReport.title : filename;
-      });
-
       const updatedBotMessageData = {
         msg_text: paraphraseResponse.data.generatedResponse ,
-        msg_titles: titles
+        msg_urls: pdfResponse.sources,
+        msg_titles: pdfResponse.filenames
       };
       setpdfMessages(prevMessages => {
         const updatedMessages = { ...prevMessages };
@@ -166,9 +171,8 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       });
       const messageData = {
         msg_user: userMessage,
-        msg_user: userMessage,
-        msg_bot_seaplane: pdfResponse.data[0].result,
-        msg_bot_files: pdfResponse.data[0].source_urls,
+        msg_bot_seaplane: pdfResponse.response,
+        msg_bot_files: pdfResponse.filenames,
         msg_bot_paraphrased: paraphraseResponse.data.generatedResponse,
         ip_address: ipAddress,
         timestamp: serverTimestamp()
@@ -178,14 +182,6 @@ const Billbot = ({ darkMode, setDarkMode }) => {
       console.error('Error getting paraphrase response.');
     }
   }
-
-  const logEvent = (category, action, label = '') => {
-    ReactGA.event({
-      category,
-      action,
-      label,
-    });
-  };
 
   useEffect(() => {
     const fetchIpAddress = async () => {
@@ -442,26 +438,41 @@ const Billbot = ({ darkMode, setDarkMode }) => {
                   <button id={"btn" + index} className={`pdf-btn hide`}onClick={handlePDFSearch}><img src={search} alt="" /><img src={load} className='pdf-load hide' alt="" /><p className='slide'>{lang === 'EN'?'Find Insight Report':"Rapport d'analyse"}</p>
                   </button>
               )}
-            {msg.type === 'bot' && pdfMessages[index] && (
-              <p className={`pdf-query-${index} hide`}>
-                {lang === "FR" ? "Voici ce que j'ai trouvé en lisant les publications de COMMB. " : "Here is what I found reading through COMMB publications. "}{pdfMessages[index].msg_text}{lang === "FR" ? " Vous pouvez trouver plus d'informations dans :":" You can find more information in: "}{' '}
-                {pdfMessages[index]?.msg_titles&& (
-                  pdfMessages[index].msg_titles.map((title, i) => {
-                    const matchingReport = reports.find(report => report.title === title);
-                    return (
-                      <React.Fragment key={i}>
-                        {matchingReport ? (
-                          <a className={`pdf-link ${darkMode ? 'dark-mode' : ''}`} href={matchingReport.url} target="_blank" rel="noopener noreferrer">{title}</a>
-                        ) : (
-                          <span>{title}</span>
-                        )}
-                        {i !== pdfMessages[index].msg_titles.length - 1 && ', '}
-                      </React.Fragment>
-                    );
-                  })
-                )}
-              </p>
-            )}
+
+              {msg.type === 'bot' && pdfMessages[index] && (
+                <p className={`pdf-query-${index} hide`}>
+                  {lang === "FR" ? "Voici ce que j'ai trouvé en lisant les publications de COMMB. " : "Here is what I found reading through COMMB publications. "}{pdfMessages[index].msg_text}{lang === "FR" ? " Vous pouvez trouver plus d'informations dans :":" You can find more information in: "}{' '}
+                  {pdfMessages[index].msg_titles.split(',').map((filename, i) => {
+                      const matchingReport = reports.find(report => report.filename === filename);
+                      if (matchingReport) {
+                        return (
+                          <a
+                            key={i}
+                            className={`pdf-link ${darkMode ? 'dark-mode' : ''}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={pdfMessages[index].msg_urls.split(',')[i]}
+                          >
+                            {matchingReport.title}
+                          </a>
+                        );
+                      } else {
+              
+                        return (
+                          <a
+                            key={i}
+                            className={`pdf-link ${darkMode ? 'dark-mode' : ''}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            href={pdfMessages[index].msg_urls.split(',')[i]}
+                          >
+                            {filename}
+                          </a>
+                        );
+                      }
+                  })}
+                </p>
+              )}
 
             </div>
           ))}
